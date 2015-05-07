@@ -329,6 +329,239 @@ public enum BackgroundImageFactory {
 
         return radBackgroundImage;
     }
+    
+    /**
+     * Creates the background image for a radial gauge.
+     * The image parameters and the image will be cached. If the
+     * current request has the same parameters as the last request
+     * it will return the already created image instead of creating.
+     * a new image.
+     * If an image is passed to the method, it will paint to the image and
+     * return this image. This will reduce the memory consumption.
+     * @param WIDTH
+     * @param SHAPE the shape of the background.
+     * @param BACKGROUND_COLOR
+     * @param CUSTOM_BACKGROUND
+     * @param TEXTURE_COLOR
+     * @param BACKGROUND_IMAGE
+     * @return a buffered image that contains the background image of a radial gauge
+     */
+    public BufferedImage createRadialBackground(final int WIDTH, final Shape GAUGE_BACKGROUND, final BackgroundColor BACKGROUND_COLOR, final Paint CUSTOM_BACKGROUND, final Color TEXTURE_COLOR, final BufferedImage BACKGROUND_IMAGE) {
+        if (WIDTH <= 0) {
+            return UTIL.createImage(1, 1, Transparency.TRANSLUCENT);
+        }
+
+        // Take image from cache instead of creating a new one if parameters are the same as last time
+        if (radWidth == WIDTH && radBackgroundColor == BACKGROUND_COLOR && radCustomBackground.equals(CUSTOM_BACKGROUND) && radTextureColor.equals(TEXTURE_COLOR)) {
+            if (BACKGROUND_IMAGE != null) {
+                final Graphics2D G2 = BACKGROUND_IMAGE.createGraphics();
+                G2.drawImage(radBackgroundImage, 0, 0, null);
+                G2.dispose();
+            }
+            return radBackgroundImage;
+        }
+
+        radBackgroundImage.flush();
+        radBackgroundImage = UTIL.createImage(WIDTH, WIDTH, Transparency.TRANSLUCENT);
+
+        final Graphics2D G2 = radBackgroundImage.createGraphics();
+        G2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        final int IMAGE_WIDTH = WIDTH;
+        final int IMAGE_HEIGHT = WIDTH;
+
+        // Boolean that defines if a overlay gradient will be painted
+        boolean fadeInOut = false;
+
+        // Background of gauge
+//        final Ellipse2D GAUGE_BACKGROUND = new Ellipse2D.Double(IMAGE_WIDTH * 0.08411215245723724, IMAGE_HEIGHT * 0.08411215245723724, IMAGE_WIDTH * 0.8317756652832031, IMAGE_HEIGHT * 0.8317756652832031);
+        final Point2D GAUGE_BACKGROUND_START = new Point2D.Double(0, GAUGE_BACKGROUND.getBounds2D().getMinY());
+        final Point2D GAUGE_BACKGROUND_STOP = new Point2D.Double(0, GAUGE_BACKGROUND.getBounds2D().getMaxY());
+        if (GAUGE_BACKGROUND_START.equals(GAUGE_BACKGROUND_STOP)) {
+            GAUGE_BACKGROUND_STOP.setLocation(0.0, GAUGE_BACKGROUND_START.getY() + 1);
+        }
+
+        final float[] GAUGE_BACKGROUND_FRACTIONS = {
+            0.0f,
+            0.40f,
+            1.0f
+        };
+
+        // Set custom background paint if selected
+        if (CUSTOM_BACKGROUND != null && BACKGROUND_COLOR == BackgroundColor.CUSTOM) {
+            G2.setPaint(CUSTOM_BACKGROUND);
+        } else {
+            final Color[] GAUGE_BACKGROUND_COLORS = {
+                BACKGROUND_COLOR.GRADIENT_START_COLOR,
+                BACKGROUND_COLOR.GRADIENT_FRACTION_COLOR,
+                BACKGROUND_COLOR.GRADIENT_STOP_COLOR
+            };
+
+            final Paint GAUGE_BACKGROUND_GRADIENT;
+            if (BACKGROUND_COLOR == BackgroundColor.BRUSHED_METAL) {
+                GAUGE_BACKGROUND_GRADIENT = new TexturePaint(UTIL.createBrushMetalTexture(TEXTURE_COLOR, GAUGE_BACKGROUND.getBounds().width, GAUGE_BACKGROUND.getBounds().height), GAUGE_BACKGROUND.getBounds());
+            } else if (BACKGROUND_COLOR == BackgroundColor.STAINLESS) {
+                final Point2D CENTER = new Point2D.Double(GAUGE_BACKGROUND.getBounds().getCenterX(), GAUGE_BACKGROUND.getBounds().getCenterY());
+                final float[] STAINLESS_FRACTIONS = {
+                    0f,
+                    0.03f,
+                    0.10f,
+                    0.14f,
+                    0.24f,
+                    0.33f,
+                    0.38f,
+                    0.5f,
+                    0.62f,
+                    0.67f,
+                    0.76f,
+                    0.81f,
+                    0.85f,
+                    0.97f,
+                    1.0f
+                };
+
+                // Define the colors of the conical gradient paint
+                final Color[] STAINLESS_COLORS = {
+                    new Color(0xFDFDFD),
+                    new Color(0xFDFDFD),
+                    new Color(0xB2B2B4),
+                    new Color(0xACACAE),
+                    new Color(0xFDFDFD),
+                    new Color(0x6E6E70),
+                    new Color(0x6E6E70),
+                    new Color(0xFDFDFD),
+                    new Color(0x6E6E70),
+                    new Color(0x6E6E70),
+                    new Color(0xFDFDFD),
+                    new Color(0xACACAE),
+                    new Color(0xB2B2B4),
+                    new Color(0xFDFDFD),
+                    new Color(0xFDFDFD)
+                };
+
+                // Define the conical gradient paint
+                GAUGE_BACKGROUND_GRADIENT = new ConicalGradientPaint(false, CENTER, -0.45f, STAINLESS_FRACTIONS, STAINLESS_COLORS);
+            } else if (BACKGROUND_COLOR == BackgroundColor.STAINLESS_GRINDED) {
+                GAUGE_BACKGROUND_GRADIENT = new TexturePaint(STAINLESS_GRINDED_TEXTURE, new java.awt.Rectangle(0, 0, 100, 100));
+            } else if (BACKGROUND_COLOR == BackgroundColor.CARBON) {
+                GAUGE_BACKGROUND_GRADIENT = new TexturePaint(CARBON_FIBRE_TEXTURE, new java.awt.Rectangle(0, 0, 12, 12));
+                fadeInOut = true;
+            } else if (BACKGROUND_COLOR == BackgroundColor.PUNCHED_SHEET) {
+                GAUGE_BACKGROUND_GRADIENT = new TexturePaint(punchedSheetTexture, new java.awt.Rectangle(0, 0, 12, 12));
+                fadeInOut = true;
+            } else if (BACKGROUND_COLOR == BackgroundColor.LINEN) {
+                GAUGE_BACKGROUND_GRADIENT = new TexturePaint(UTIL.createLinenTexture(TEXTURE_COLOR, GAUGE_BACKGROUND.getBounds().width, GAUGE_BACKGROUND.getBounds().height), GAUGE_BACKGROUND.getBounds());
+            } else if (BACKGROUND_COLOR == BackgroundColor.NOISY_PLASTIC) {
+                GAUGE_BACKGROUND_START.setLocation(0.0, GAUGE_BACKGROUND.getBounds().getMinY());
+                GAUGE_BACKGROUND_STOP.setLocation(0.0, GAUGE_BACKGROUND.getBounds().getMaxY());
+                Util.INSTANCE.validateGradientPoints(GAUGE_BACKGROUND_START, GAUGE_BACKGROUND_STOP);
+                final float[] FRACTIONS = {
+                    0.0f,
+                    1.0f
+                };
+                final Color[] COLORS = {
+                    UTIL.lighter(TEXTURE_COLOR, 0.15f),
+                    UTIL.darker(TEXTURE_COLOR, 0.15f)
+                };
+                GAUGE_BACKGROUND_GRADIENT = new LinearGradientPaint(GAUGE_BACKGROUND_START, GAUGE_BACKGROUND_STOP, FRACTIONS, COLORS);
+            } else {
+                Util.INSTANCE.validateGradientPoints(GAUGE_BACKGROUND_START, GAUGE_BACKGROUND_STOP);
+                GAUGE_BACKGROUND_GRADIENT = new LinearGradientPaint(GAUGE_BACKGROUND_START, GAUGE_BACKGROUND_STOP, GAUGE_BACKGROUND_FRACTIONS, GAUGE_BACKGROUND_COLORS);
+            }
+            G2.setPaint(GAUGE_BACKGROUND_GRADIENT);
+        }
+        G2.fill(GAUGE_BACKGROUND);
+
+        // add noise if NOISY_PLASTIC
+        if (BACKGROUND_COLOR == BackgroundColor.NOISY_PLASTIC) {
+            final Random BW_RND = new Random();
+            final Random ALPHA_RND = new Random();
+            final Shape OLD_CLIP = G2.getClip();
+            G2.setClip(GAUGE_BACKGROUND);
+            Color noiseColor;
+            int noiseAlpha;
+            for (int y = 0 ; y < GAUGE_BACKGROUND.getBounds().getHeight() ; y ++) {
+                for (int x = 0 ; x < GAUGE_BACKGROUND.getBounds().getWidth() ; x ++) {
+                    if (BW_RND.nextBoolean()) {
+                        noiseColor = BRIGHT_NOISE;
+                    } else {
+                        noiseColor = DARK_NOISE;
+                    }
+                    noiseAlpha = 10 + ALPHA_RND.nextInt(10) - 5;
+                    G2.setColor(new Color(noiseColor.getRed(), noiseColor.getGreen(), noiseColor.getBlue(), noiseAlpha));
+                    G2.drawLine((int) (x + GAUGE_BACKGROUND.getBounds().getMinX()), (int) (y + GAUGE_BACKGROUND.getBounds().getMinY()), (int) (x + GAUGE_BACKGROUND.getBounds().getMinX()), (int) (y + GAUGE_BACKGROUND.getBounds().getMinY()));
+                }
+            }
+            G2.setClip(OLD_CLIP);
+        }
+
+        // Draw an overlay gradient that gives the carbon fibre a more realistic look
+        if (fadeInOut) {
+            final float[] SHADOW_OVERLAY_FRACTIONS = {
+                0.0f,
+                0.4f,
+                0.6f,
+                1.0f
+            };
+            final Color[] SHADOW_OVERLAY_COLORS = {
+                new Color(0f, 0f, 0f, 0.6f),
+                new Color(0f, 0f, 0f, 0.0f),
+                new Color(0f, 0f, 0f, 0.0f),
+                new Color(0f, 0f, 0f, 0.6f)
+            };
+            final LinearGradientPaint SHADOW_OVERLAY_GRADIENT;
+            if (Util.INSTANCE.pointsEquals(GAUGE_BACKGROUND.getBounds().getMinX(), 0, GAUGE_BACKGROUND.getBounds().getMaxX(), 0)) {
+                SHADOW_OVERLAY_GRADIENT = new LinearGradientPaint(new Point2D.Double(GAUGE_BACKGROUND.getBounds().getMinX(), 0), new Point2D.Double(GAUGE_BACKGROUND.getBounds().getMaxX() + 1, 0), SHADOW_OVERLAY_FRACTIONS, SHADOW_OVERLAY_COLORS);
+            } else {
+                SHADOW_OVERLAY_GRADIENT = new LinearGradientPaint(new Point2D.Double(GAUGE_BACKGROUND.getBounds().getMinX(), 0), new Point2D.Double(GAUGE_BACKGROUND.getBounds().getMaxX(), 0), SHADOW_OVERLAY_FRACTIONS, SHADOW_OVERLAY_COLORS);
+            }
+            G2.setPaint(SHADOW_OVERLAY_GRADIENT);
+            G2.fill(GAUGE_BACKGROUND);
+        }
+
+        final Ellipse2D GAUGE_INNERSHADOW = new Ellipse2D.Double(IMAGE_WIDTH * 0.08411215245723724, IMAGE_HEIGHT * 0.08411215245723724, IMAGE_WIDTH * 0.8317756652832031, IMAGE_HEIGHT * 0.8317756652832031);
+        final Point2D GAUGE_INNERSHADOW_CENTER = new Point2D.Double((0.5 * IMAGE_WIDTH), (0.5 * IMAGE_HEIGHT));
+        final float[] GAUGE_INNERSHADOW_FRACTIONS = {
+            0.0f,
+            0.7f,
+            0.71f,
+            0.86f,
+            0.92f,
+            0.97f,
+            1.0f
+        };
+        final Color[] GAUGE_INNERSHADOW_COLORS = {
+            new Color(0f, 0f, 0f, 0f),
+            new Color(0f, 0f, 0f, 0f),
+            new Color(0f, 0f, 0f, 0f),
+            new Color(0f, 0f, 0f, 0.03f),
+            new Color(0f, 0f, 0f, 0.07f),
+            new Color(0f, 0f, 0f, 0.15f),
+            new Color(0f, 0f, 0f, 0.3f)
+        };
+        final RadialGradientPaint GAUGE_INNERSHADOW_GRADIENT = new RadialGradientPaint(GAUGE_INNERSHADOW_CENTER, (float) (0.4158878504672897 * IMAGE_WIDTH), GAUGE_INNERSHADOW_FRACTIONS, GAUGE_INNERSHADOW_COLORS);
+        G2.setPaint(GAUGE_INNERSHADOW_GRADIENT);
+        G2.fill(GAUGE_INNERSHADOW);
+        if (BACKGROUND_COLOR != BackgroundColor.TRANSPARENT) {
+            G2.fill(GAUGE_INNERSHADOW);
+        }
+
+        G2.dispose();
+
+        if (BACKGROUND_IMAGE != null) {
+            final Graphics2D G = BACKGROUND_IMAGE.createGraphics();
+            G.drawImage(radBackgroundImage, 0, 0, null);
+            G.dispose();
+        }
+
+        // Cache current values
+        radWidth = WIDTH;
+        radBackgroundColor = BACKGROUND_COLOR;
+        radCustomBackground = CUSTOM_BACKGROUND;
+        radTextureColor = TEXTURE_COLOR;
+
+        return radBackgroundImage;
+    }
 
     /**
      * Creates the background image for a linear gauge.

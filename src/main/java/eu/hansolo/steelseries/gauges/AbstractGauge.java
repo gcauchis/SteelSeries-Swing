@@ -44,6 +44,7 @@ import eu.hansolo.steelseries.tools.LcdColor;
 import eu.hansolo.steelseries.tools.LcdImageFactory;
 import eu.hansolo.steelseries.tools.LedColor;
 import eu.hansolo.steelseries.tools.LedImageFactory;
+import eu.hansolo.steelseries.tools.MeasuredValueImageFactory;
 import eu.hansolo.steelseries.tools.Model;
 import eu.hansolo.steelseries.tools.NumberFormat;
 import eu.hansolo.steelseries.tools.Orientation;
@@ -53,6 +54,7 @@ import eu.hansolo.steelseries.tools.ThresholdType;
 import eu.hansolo.steelseries.tools.TickmarkImageFactory;
 import eu.hansolo.steelseries.tools.TickmarkType;
 import eu.hansolo.steelseries.tools.Util;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -73,6 +75,7 @@ import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.swing.JComponent;
 import javax.swing.Timer;
 import javax.swing.border.Border;
@@ -103,6 +106,7 @@ public abstract class AbstractGauge extends JComponent implements ComponentListe
     protected static final PointerImageFactory POINTER_FACTORY = PointerImageFactory.INSTANCE;
     protected static final ForegroundImageFactory FOREGROUND_FACTORY = ForegroundImageFactory.INSTANCE;
     protected static final DisabledImageFactory DISABLED_FACTORY = DisabledImageFactory.INSTANCE;
+    protected static final MeasuredValueImageFactory MEASURED_VALUE_FACTORY = MeasuredValueImageFactory.INSTANCE;
     // Initialization
     private boolean initialized;
     // Models

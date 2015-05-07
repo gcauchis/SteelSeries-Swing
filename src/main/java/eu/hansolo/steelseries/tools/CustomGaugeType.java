@@ -29,6 +29,11 @@ package eu.hansolo.steelseries.tools;
 
 import java.awt.geom.Rectangle2D;
 
+/**
+ * A {@link GaugeType} customization.
+ * 
+ * @author Gerrit Grunwald <han.solo at muenster.de> and Gabriel Cauchis <gabriel.cauchis at gmail.com>
+ */
 public class CustomGaugeType
 {
     final public double FREE_AREA_ANGLE;

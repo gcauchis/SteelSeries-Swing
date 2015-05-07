@@ -92,11 +92,17 @@ import org.pushingpixels.trident.ease.TimelineEase;
 public abstract class AbstractRadial extends AbstractGauge implements Lcd {
     // <editor-fold defaultstate="collapsed" desc="Variable declarations">
 
+    /** The maximum size of the radial. */
+    public static final int MAXIMUM_SIZE = 1080;
+    /** The minimum size of the radial. */
+    public static final int MINIMUM_SIZE = 50;
+    
     protected static final float ANGLE_CONST = 1f / 360f;
     private final Rectangle INNER_BOUNDS;
     private final Rectangle GAUGE_BOUNDS;
     private final Rectangle FRAMELESS_BOUNDS;
     private final Point2D FRAMELESS_OFFSET;
+    private double ratioWH = 1d;
     // Sections related
     private boolean transparentSectionsEnabled;
     private boolean transparentAreasEnabled;
@@ -2921,33 +2927,7 @@ public abstract class AbstractRadial extends AbstractGauge implements Lcd {
      * @return the image of the min or max measured value
      */
     protected BufferedImage create_MEASURED_VALUE_Image(final int WIDTH, final Color COLOR, final double ROTATION_OFFSET) {
-        if (WIDTH <= 36) // 36 is needed otherwise the image size could be smaller than 1
-        {
-            return UTIL.createImage(1, 1, Transparency.TRANSLUCENT);
-        }
-
-        final int IMAGE_HEIGHT = (int) (WIDTH * 0.0280373832);
-        final int IMAGE_WIDTH = IMAGE_HEIGHT;
-
-        final BufferedImage IMAGE = UTIL.createImage(IMAGE_WIDTH, IMAGE_HEIGHT, Transparency.TRANSLUCENT);
-        final Graphics2D G2 = IMAGE.createGraphics();
-        G2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-        G2.rotate(ROTATION_OFFSET, IMAGE_WIDTH / 2.0, IMAGE_HEIGHT / 2.0);
-
-        final GeneralPath INDICATOR = new GeneralPath();
-        INDICATOR.setWindingRule(Path2D.WIND_EVEN_ODD);
-        INDICATOR.moveTo(IMAGE_WIDTH * 0.5, IMAGE_HEIGHT);
-        INDICATOR.lineTo(0.0, 0.0);
-        INDICATOR.lineTo(IMAGE_WIDTH, 0.0);
-        INDICATOR.closePath();
-
-        G2.setColor(COLOR);
-        G2.fill(INDICATOR);
-
-        G2.dispose();
-
-        return IMAGE;
+        return MEASURED_VALUE_FACTORY.createMeasuredValueImage(WIDTH, COLOR, ROTATION_OFFSET);
     }
 
     /**
@@ -3101,14 +3081,14 @@ public abstract class AbstractRadial extends AbstractGauge implements Lcd {
 
     public void calcInnerBounds(final int WIDTH, final int HEIGHT) {
         final Insets INSETS = getInsets();
-        final int SIZE = (WIDTH - INSETS.left - INSETS.right) <= (HEIGHT - INSETS.top - INSETS.bottom) ? (WIDTH - INSETS.left - INSETS.right) : (HEIGHT - INSETS.top - INSETS.bottom);
+        final Dimension SIZE = computeDimensionWithRatio(WIDTH, HEIGHT);
         INNER_BOUNDS.setBounds(INSETS.left, INSETS.top, WIDTH - INSETS.left - INSETS.right, HEIGHT - INSETS.top - INSETS.bottom);
         if (!isFrameVisible()) {
-            GAUGE_BOUNDS.setBounds(INSETS.left, INSETS.top, (int)(SIZE * 1.202247191), (int)(SIZE * 1.202247191));
+            GAUGE_BOUNDS.setBounds(INSETS.left, INSETS.top, (int)(SIZE.width * 1.202247191), (int)(SIZE.height * 1.202247191));
         } else {
-            GAUGE_BOUNDS.setBounds(INSETS.left, INSETS.top, SIZE, SIZE);
+            GAUGE_BOUNDS.setBounds(INSETS.left, INSETS.top, SIZE.width, SIZE.height);
         }
-        FRAMELESS_BOUNDS.setBounds(INSETS.left + (int)(SIZE * 0.08411215245723724), INSETS.top + (int)(SIZE * 0.08411215245723724), (int)(SIZE * 0.8317756652832031), (int)(SIZE * 0.8317756652832031));
+        FRAMELESS_BOUNDS.setBounds(INSETS.left + (int)(SIZE.width * 0.08411215245723724), INSETS.top + (int)(SIZE.height * 0.08411215245723724), (int)(SIZE.width * 0.8317756652832031), (int)(SIZE.height * 0.8317756652832031));
     }
 
     /**
@@ -3143,18 +3123,25 @@ public abstract class AbstractRadial extends AbstractGauge implements Lcd {
     @Override
     public Dimension getMinimumSize() {
         Dimension dim = super.getMinimumSize();
-        if (dim.width < 50 || dim.height < 50) {
-            dim = new Dimension(50, 50);
+        if (dim.width < MINIMUM_SIZE || dim.height < MINIMUM_SIZE) {
+            if (ratioWH <= 1)
+                dim = new Dimension(MINIMUM_SIZE, (int) (MINIMUM_SIZE / ratioWH));
+            else
+                dim = new Dimension((int) (MINIMUM_SIZE * ratioWH), MINIMUM_SIZE);
         }
         return dim;
     }
 
     @Override
     public void setMinimumSize(final Dimension DIM) {
-        int  width = DIM.width < 50 ? 50 : DIM.width;
-        int height = DIM.height < 50 ? 50 : DIM.height;
-        final int SIZE = width <= height ? width : height;
-        super.setMinimumSize(new Dimension(SIZE, SIZE));
+        int width = DIM.width < MINIMUM_SIZE ? MINIMUM_SIZE : DIM.width;
+        int height = DIM.height < MINIMUM_SIZE ? MINIMUM_SIZE : DIM.height;
+        Dimension dim;
+        if (ratioWH <= 1)
+            dim = new Dimension(width, (int) (width / ratioWH));
+        else
+            dim = new Dimension((int) (height * ratioWH), height);
+        super.setMinimumSize(dim);
         calcInnerBounds();
         init(getGaugeBounds().width, getGaugeBounds().height);
         setInitialized(true);
@@ -3165,18 +3152,20 @@ public abstract class AbstractRadial extends AbstractGauge implements Lcd {
     @Override
     public Dimension getMaximumSize() {
         Dimension dim = super.getMaximumSize();
-        if (dim.width > 1080 || dim.height > 1080) {
-            dim = new Dimension(1080, 1080);
+        if (dim.width > MAXIMUM_SIZE || dim.height > MAXIMUM_SIZE) {
+            if (ratioWH <= 1)
+                dim = new Dimension((int) (MAXIMUM_SIZE * ratioWH), MAXIMUM_SIZE);
+            else
+                dim = new Dimension(MAXIMUM_SIZE, (int) (MAXIMUM_SIZE / ratioWH));
         }
         return dim;
     }
 
     @Override
     public void setMaximumSize(final Dimension DIM) {
-        int  width = DIM.width > 1080 ? 1080 : DIM.width;
-        int height = DIM.height > 1080 ? 1080 : DIM.height;
-        final int SIZE = width <= height ? width : height;
-        super.setMaximumSize(new Dimension(SIZE, SIZE));
+        int width = DIM.width > MAXIMUM_SIZE ? MAXIMUM_SIZE : DIM.width;
+        int height = DIM.height > MAXIMUM_SIZE ? MAXIMUM_SIZE : DIM.height;
+        super.setMaximumSize(computeDimensionWithRatio(width, height));
         calcInnerBounds();
         init(getGaugeBounds().width, getGaugeBounds().height);
         setInitialized(true);
@@ -3186,8 +3175,7 @@ public abstract class AbstractRadial extends AbstractGauge implements Lcd {
 
     @Override
     public void setPreferredSize(final Dimension DIM) {
-        final int SIZE = DIM.width <= DIM.height ? DIM.width : DIM.height;
-        super.setPreferredSize(new Dimension(SIZE, SIZE));
+        super.setPreferredSize(computeDimensionWithRatio(DIM));
         calcInnerBounds();
         init(getGaugeBounds().width, getGaugeBounds().height);
         setInitialized(true);
@@ -3197,8 +3185,8 @@ public abstract class AbstractRadial extends AbstractGauge implements Lcd {
 
     @Override
     public void setSize(final int WIDTH, final int HEIGHT) {
-        final int SIZE = WIDTH <= HEIGHT ? WIDTH : HEIGHT;
-        super.setSize(SIZE, SIZE);
+        Dimension dim = computeDimensionWithRatio(WIDTH, HEIGHT);
+        super.setSize(dim.width, dim.height);
         calcInnerBounds();
         init(getGaugeBounds().width, getGaugeBounds().height);
         setInitialized(true);
@@ -3206,8 +3194,7 @@ public abstract class AbstractRadial extends AbstractGauge implements Lcd {
 
     @Override
     public void setSize(final Dimension DIM) {
-        final int SIZE = DIM.width <= DIM.height ? DIM.width : DIM.height;
-        super.setSize(new Dimension(SIZE, SIZE));
+        super.setSize(computeDimensionWithRatio(DIM));
         calcInnerBounds();
         init(getGaugeBounds().width, getGaugeBounds().height);
         setInitialized(true);
@@ -3215,79 +3202,41 @@ public abstract class AbstractRadial extends AbstractGauge implements Lcd {
 
     @Override
     public void setBounds(final Rectangle BOUNDS) {
-        if (BOUNDS.width <= BOUNDS.height) {
-            // vertical
-            int yNew;
-            switch(verticalAlignment) {
-                case SwingConstants.TOP:
-                    yNew = BOUNDS.y;
-                    break;
-                case SwingConstants.BOTTOM:
-                    yNew = BOUNDS.y + (BOUNDS.height - BOUNDS.width);
-                    break;
-                case SwingConstants.CENTER:
-                default:
-                    yNew = BOUNDS.y + ((BOUNDS.height - BOUNDS.width) / 2);
-                    break;
-            }
-            super.setBounds(BOUNDS.x, yNew, BOUNDS.width, BOUNDS.width);
-        } else {
-            // horizontal
-            int xNew;
-            switch(horizontalAlignment) {
-                case SwingConstants.LEFT:
-                    xNew = BOUNDS.x;
-                    break;
-                case SwingConstants.RIGHT:
-                    xNew = BOUNDS.x + (BOUNDS.width - BOUNDS.height);
-                    break;
-                case SwingConstants.CENTER:
-                default:
-                    xNew = BOUNDS.x + ((BOUNDS.width - BOUNDS.height) / 2);
-                    break;
-            }
-            super.setBounds(xNew, BOUNDS.y, BOUNDS.height, BOUNDS.height);
-        }
-        calcInnerBounds();
-        init(getGaugeBounds().width, getGaugeBounds().height);
-        setInitialized(true);
+        this.setBounds((int) BOUNDS.getX(), (int) BOUNDS.getY(), (int) BOUNDS.getWidth(), (int) BOUNDS.getHeight());
     }
 
     @Override
     public void setBounds(final int X, final int Y, final int WIDTH, final int HEIGHT) {
-        if (WIDTH <= HEIGHT) {
-            // vertical
-            int yNew;
-            switch(verticalAlignment) {
-                case SwingConstants.TOP:
-                    yNew = Y;
-                    break;
-                case SwingConstants.BOTTOM:
-                    yNew = Y + (HEIGHT - WIDTH);
-                    break;
-                case SwingConstants.CENTER:
-                default:
-                    yNew = Y + ((HEIGHT - WIDTH) / 2);
-                    break;
-            }
-            super.setBounds(X, yNew, WIDTH, WIDTH);
-        } else {
-            // horizontal
-            int xNew;
-            switch(horizontalAlignment) {
-                case SwingConstants.LEFT:
-                    xNew = X;
-                    break;
-                case SwingConstants.RIGHT:
-                    xNew = X + (WIDTH - HEIGHT);
-                    break;
-                case SwingConstants.CENTER:
-                default:
-                    xNew = X + ((WIDTH - HEIGHT) / 2);
-                    break;
-            }
-            super.setBounds(xNew, Y, HEIGHT, HEIGHT);
-        }
+        Dimension dim = computeDimensionWithRatio(WIDTH, HEIGHT);
+         // vertical
+         int yNew;
+         switch(verticalAlignment) {
+             case SwingConstants.TOP:
+                 yNew = Y;
+                 break;
+             case SwingConstants.BOTTOM:
+                 yNew = Y + (HEIGHT - dim.height);
+                 break;
+             case SwingConstants.CENTER:
+             default:
+                 yNew = Y + ((HEIGHT - dim.height) / 2);
+                 break;
+         }
+         // horizontal
+         int xNew;
+         switch(horizontalAlignment) {
+             case SwingConstants.LEFT:
+                 xNew = X;
+                 break;
+             case SwingConstants.RIGHT:
+                 xNew = X + (WIDTH - dim.width);
+                 break;
+             case SwingConstants.CENTER:
+             default:
+                 xNew = X + ((WIDTH - dim.width) / 2);
+                 break;
+         }
+         super.setBounds(xNew, yNew, dim.width, dim.height);
         calcInnerBounds();
         init(getGaugeBounds().width, getGaugeBounds().height);
         setInitialized(true);
@@ -3394,4 +3343,57 @@ public abstract class AbstractRadial extends AbstractGauge implements Lcd {
     public String toString() {
         return "AbstractRadial";
     }
+
+    /**
+     * Return the ratio WIDTH / HEIGHT.
+     * @return the ratio WIDTH / HEIGHT.
+     */
+    protected double getRatioWH()
+    {
+        return ratioWH;
+    }
+
+    /**
+     * Set the ratio WIDTH / HEIGHT. (by default 1).
+     * @param RATIO_W_H the new ratio WIDTH / HEIGHT.
+     */
+    protected void setRatioWH(final double RATIO_W_H)
+    {
+        ratioWH = RATIO_W_H;
+    }
+    
+    /**
+     * Compute the dimension with the good ratio WIDTH / HEIGHT.
+     * 
+     * @param DIMENSION the entry dimension.
+     * @return a dimension that match the ratio WIDTH / HEIGHT and is include in the given dimension.
+     * @see #setRatioWH(double)
+     */
+    protected Dimension computeDimensionWithRatio(final Dimension DIMENSION)
+    {
+        return computeDimensionWithRatio(DIMENSION.width, DIMENSION.height);
+    }
+    
+    /**
+     * Compute the dimension with the good ratio WIDTH / HEIGHT.
+     * 
+     * @param WIDTH the dimension width.
+     * @param HEIGHT the dimension height.
+     * @return a dimension that match the ratio WIDTH / HEIGHT and is include in the given dimension.
+     * @see #setRatioWH(double)
+     */
+    protected Dimension computeDimensionWithRatio(final int WIDTH, final int HEIGHT)
+    {
+        Dimension dimension = new Dimension(WIDTH, HEIGHT);
+        if (HEIGHT * ratioWH <= WIDTH)
+        {
+            dimension.width = (int) (HEIGHT * ratioWH);
+        }
+        else
+        {
+            dimension.height = (int) (WIDTH / ratioWH);
+        }
+        return dimension;
+    }
+    
 }

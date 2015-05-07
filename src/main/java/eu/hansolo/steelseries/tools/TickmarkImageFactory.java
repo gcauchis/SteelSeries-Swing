@@ -60,6 +60,7 @@ public enum TickmarkImageFactory {
     // Buffer variables of radial gauges
     private BufferedImage imageBufferRad = UTIL.createImage(1, 1, Transparency.TRANSLUCENT);
     private int widthBufferRad = 200;
+    private int heightBufferRad = 200;
     private double minValueBufferRad = 0;
     private double maxValueBufferRad = 100;
     private int noOfMinorTicksBufferRad = 0;
@@ -120,6 +121,43 @@ public enum TickmarkImageFactory {
 
     // <editor-fold defaultstate="collapsed" desc="Radial tickmark related">
     public BufferedImage create_RADIAL_TICKMARKS_Image(final int WIDTH,
+            final double MIN_VALUE,
+            final double MAX_VALUE,
+            final int NO_OF_MINOR_TICKS,
+            final int NO_OF_MAJOR_TICKS,
+            final double MINOR_TICK_SPACING,
+            final double MAJOR_TICK_SPACING,
+            final GaugeType GAUGE_TYPE,
+            final CustomGaugeType CUSTOM_GAUGE_TYPE,
+            final TickmarkType MINOR_TICKMARK_TYPE,
+            final TickmarkType MAJOR_TICKMARK_TYPE,
+            final boolean TICKS_VISIBLE,
+            final boolean TICKLABELS_VISIBLE,
+            final boolean MINOR_TICKS_VISIBLE,
+            final boolean MAJOR_TICKS_VISIBLE,
+            final NumberFormat NUMBER_FORMAT,
+            final boolean TICKMARK_SECTIONS_VISIBLE,
+            final BackgroundColor BACKGROUND_COLOR,
+            final Color TICKMARK_COLOR,
+            final boolean TICKMARK_COLOR_FROM_THEME,
+            List<Section> tickmarkSections,
+            final boolean SECTION_TICKMARKS_ONLY,
+            List<Section> sections,
+            final float RADIUS_FACTOR,
+            final float TEXT_DISTANCE_FACTOR,
+            final Point2D CENTER,
+            final Point2D OFFSET,
+            final Orientation ORIENTATION,
+            final TicklabelOrientation TICKLABEL_ORIENTATION,
+            final boolean NICE_SCALE,
+            final boolean LOG_SCALE,
+            final BufferedImage BACKGROUND_IMAGE) {
+        
+        return create_RADIAL_TICKMARKS_Image(WIDTH, WIDTH, MIN_VALUE, MAX_VALUE, NO_OF_MINOR_TICKS, NO_OF_MAJOR_TICKS, MINOR_TICK_SPACING, MAJOR_TICK_SPACING, GAUGE_TYPE, CUSTOM_GAUGE_TYPE, MINOR_TICKMARK_TYPE, MAJOR_TICKMARK_TYPE, TICKS_VISIBLE, TICKLABELS_VISIBLE, MINOR_TICKS_VISIBLE, MAJOR_TICKS_VISIBLE, NUMBER_FORMAT, TICKMARK_SECTIONS_VISIBLE, BACKGROUND_COLOR, TICKMARK_COLOR, TICKMARK_COLOR_FROM_THEME, tickmarkSections, SECTION_TICKMARKS_ONLY, sections, RADIUS_FACTOR, TEXT_DISTANCE_FACTOR, CENTER, OFFSET, ORIENTATION, TICKLABEL_ORIENTATION, NICE_SCALE, LOG_SCALE, BACKGROUND_IMAGE);
+    }
+    
+    public BufferedImage create_RADIAL_TICKMARKS_Image(final int WIDTH,
+                                                          final int HEIGHT,
                                                           final double MIN_VALUE,
                                                           final double MAX_VALUE,
                                                           final int NO_OF_MINOR_TICKS,
@@ -157,6 +195,7 @@ public enum TickmarkImageFactory {
 
         // Buffer check
         if (WIDTH == widthBufferRad
+            && HEIGHT == heightBufferRad
             && Double.compare(MIN_VALUE, minValueBufferRad) == 0
             && Double.compare(MAX_VALUE, maxValueBufferRad) == 0
             && NO_OF_MINOR_TICKS == noOfMinorTicksBufferRad
@@ -199,7 +238,7 @@ public enum TickmarkImageFactory {
         if (imageBufferRad != null) {
             imageBufferRad.flush();
         }
-        imageBufferRad = UTIL.createImage(WIDTH, WIDTH, Transparency.TRANSLUCENT);
+        imageBufferRad = UTIL.createImage(WIDTH, HEIGHT, Transparency.TRANSLUCENT);
 
         // Adjust the number format of the ticklabels
         if (NUMBER_FORMAT == NumberFormat.AUTO) {
@@ -486,6 +525,7 @@ public enum TickmarkImageFactory {
 
         // Buffer the current parameters
         widthBufferRad = WIDTH;
+        heightBufferLin = HEIGHT;
         minValueBufferRad = MIN_VALUE;
         maxValueBufferRad = MAX_VALUE;
         noOfMinorTicksBufferRad = NO_OF_MINOR_TICKS;
