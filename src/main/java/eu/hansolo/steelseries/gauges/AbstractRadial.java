@@ -2825,7 +2825,7 @@ public abstract class AbstractRadial extends AbstractGauge implements Lcd {
      * @param KNOB_TYPE
      * @return a buffered image that contains a single alignment post of the given type
      */
-    private BufferedImage create_KNOB_Image(final int WIDTH, final KnobType KNOB_TYPE, final KnobStyle KNOB_STYLE) {
+    protected BufferedImage create_KNOB_Image(final int WIDTH, final KnobType KNOB_TYPE, final KnobStyle KNOB_STYLE) {
         return KNOB_FACTORY.create_KNOB_Image(WIDTH, KNOB_TYPE, KNOB_STYLE);
     }
 
