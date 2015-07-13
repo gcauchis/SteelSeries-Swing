@@ -2108,10 +2108,10 @@ public class RadialCustom extends AbstractRadial {
             }
 
             final double OUTER_RADIUS = bImage.getWidth() * getWidthRadiusFactor() * tickMarkScale;
-            final double INNER_RADIUS = isExpandedSectionsEnabled() ? OUTER_RADIUS - bImage.getWidth() * 0.12f : OUTER_RADIUS - bImage.getWidth() * 0.04f;
-            final Area INNER = new Area(new Ellipse2D.Double(CENTER.getX() - INNER_RADIUS, CENTER.getY() - INNER_RADIUS, 2 * INNER_RADIUS, 2 * INNER_RADIUS));
 
             for (Section section : getSections()) {
+                final double INNER_RADIUS = OUTER_RADIUS - OUTER_RADIUS /*bImage.getWidth()*/ * getSectionWidthFactor(section);
+                final Area INNER = new Area(new Ellipse2D.Double(CENTER.getX() - INNER_RADIUS, CENTER.getY() - INNER_RADIUS, 2 * INNER_RADIUS, 2 * INNER_RADIUS));
                 final double ANGLE_START;
                 final double ANGLE_EXTEND;
 
@@ -2149,6 +2149,11 @@ public class RadialCustom extends AbstractRadial {
                 G2.dispose();
             }
         }
+    }
+    
+    protected float getSectionWidthFactor(Section section)
+    {
+        return isExpandedSectionsEnabled() ? 0.24f : 0.08f;
     }
     // </editor-fold>
     
