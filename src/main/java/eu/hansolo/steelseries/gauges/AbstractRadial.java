@@ -3285,21 +3285,21 @@ public abstract class AbstractRadial extends AbstractGauge implements Lcd {
     // <editor-fold defaultstate="collapsed" desc="ComponentListener methods">
     @Override
     public void componentResized(final ComponentEvent EVENT) {
-        final int SIZE = getWidth() <= getHeight() ? getWidth() : getHeight();
+        final Dimension DIM = computeDimensionWithRatio(getWidth(), getHeight());
         final Container PARENT = getParent();
         if ((PARENT != null) && (PARENT.getLayout() == null)) {
-            if (SIZE < getMinimumSize().width || SIZE < getMinimumSize().height) {
+            if (DIM.getWidth() < getMinimumSize().width || DIM.getHeight() < getMinimumSize().height) {
                 setSize(getMinimumSize());
             } else {
-                setSize(SIZE, SIZE);
+                setSize(DIM);
             }
         } else {
-            if (SIZE < getMinimumSize().width || SIZE < getMinimumSize().height) {
+            if (DIM.getWidth() < getMinimumSize().width || DIM.getHeight() < getMinimumSize().height) {
                 //setSize(getMinimumSize());
                 setPreferredSize(getMinimumSize());
             } else {
                 //setSize(new Dimension(SIZE, SIZE));
-                setPreferredSize(new Dimension(SIZE, SIZE));
+                setPreferredSize(DIM);
             }
         }
 
@@ -3319,7 +3319,7 @@ public abstract class AbstractRadial extends AbstractGauge implements Lcd {
             setCurrentUserLedImage(getUserLedImageOff());
         }
 
-        getModel().setSize(getLocation().x, getLocation().y, SIZE, SIZE);
+        getModel().setSize(getLocation().x, getLocation().y, DIM.width, DIM.height);
         init(getInnerBounds().width, getInnerBounds().height);
         //revalidate();
         //repaint();
@@ -3387,11 +3387,11 @@ public abstract class AbstractRadial extends AbstractGauge implements Lcd {
         Dimension dimension = new Dimension(WIDTH, HEIGHT);
         if (HEIGHT * ratioWH <= WIDTH)
         {
-            dimension.width = (int) (HEIGHT * ratioWH);
+            dimension.width = (int) Math.ceil(HEIGHT * ratioWH);
         }
         else
         {
-            dimension.height = (int) (WIDTH / ratioWH);
+            dimension.height = (int) Math.ceil(WIDTH / ratioWH);
         }
         return dimension;
     }
