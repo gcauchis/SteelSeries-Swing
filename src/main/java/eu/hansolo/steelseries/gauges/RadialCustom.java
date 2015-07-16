@@ -119,17 +119,20 @@ public class RadialCustom extends AbstractRadial {
     private final Point2D pointerImageOrigin = new Point2D.Double();
     private final Point2D measuredValueOffset = new Point2D.Double();
     
-    private final double frameThikness = 0.08;
-    private final double outerFrameScale = 1;
-    private final double backgroundScale = outerFrameScale - frameThikness;//0.92;
-    private final double mainFrameScale = outerFrameScale - 0.02;//0.98;
-    private final double innerFrameScale = backgroundScale + 0.02;//0.94;
-    private final double innerFrameGlossy1 = innerFrameScale * 1.01;
-    private final double innerFrameGlossy2 = innerFrameScale * 1.005;
-    private final double tickMarkScale = backgroundScale * 0.93;
+    private final float frameThikness = 0.08f;
+    private final float outerFrameScale = 1f;
+    private final float backgroundScale = outerFrameScale - frameThikness;//0.92;
+    private final float mainFrameScale = outerFrameScale - 0.02f;//0.98;
+    private final float innerFrameScale = backgroundScale + 0.02f;//0.94;
+    private final float innerFrameGlossy1 = innerFrameScale * 1.01f;
+    private final float innerFrameGlossy2 = innerFrameScale * 1.005f;
+    private float tickMarkScale = backgroundScale * 0.93f;
+    private float tickMarkLabelDistanceFactor = 0.09f;
     
-    private final Color DARK_NOISE = new Color(0.2f, 0.2f, 0.2f);
-    private final Color BRIGHT_NOISE = new Color(0.8f, 0.8f, 0.8f);
+    private boolean tickLabelIn = true;
+    
+    private static final Color DARK_NOISE = new Color(0.2f, 0.2f, 0.2f);
+    private static final Color BRIGHT_NOISE = new Color(0.8f, 0.8f, 0.8f);
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Constructor">
@@ -156,6 +159,13 @@ public class RadialCustom extends AbstractRadial {
     // <editor-fold defaultstate="collapsed" desc="Initialization">
     @Override
     public final AbstractGauge init(final int WIDTH, final int HEIGHT) {
+        if (tickLabelIn) {
+            tickMarkScale = backgroundScale * 0.97f;
+            tickMarkLabelDistanceFactor = 0.09f;
+        } else {
+            tickMarkScale = backgroundScale * 0.84f;
+            tickMarkLabelDistanceFactor = -0.04f;
+        }
         final int GAUGE_WIDTH = isFrameVisible() ? WIDTH : getGaugeBounds().width;
         final int GAUGE_HEIGHT = isFrameVisible() ? HEIGHT : getGaugeBounds().height;
         final Dimension GAUGE_DIM = new Dimension(GAUGE_WIDTH, GAUGE_HEIGHT);
@@ -295,7 +305,7 @@ public class RadialCustom extends AbstractRadial {
                                                        isSectionTickmarksOnly(),
                                                        getSections(),
                                                        tickMarkRadiusFactor,
-                                                       0.09f,
+                                                       tickMarkLabelDistanceFactor,
                                                        CENTER,
                                                        new Point2D.Double(0, 0),
                                                        Orientation.NORTH,
@@ -2183,6 +2193,37 @@ public class RadialCustom extends AbstractRadial {
         getInnerBounds().setBounds(INSETS.left, INSETS.top, WIDTH - INSETS.left - INSETS.right, HEIGHT - INSETS.top - INSETS.bottom);
         getGaugeBounds().setBounds(INSETS.left, INSETS.top, SIZE.width, SIZE.height);
         getFramelessBounds().setBounds(INSETS.left, INSETS.top , (int)(SIZE.width), (int)(SIZE.height));
+    }
+
+    /**
+     * Checks if is tick label in.
+     *
+     * @return true, if is tick label in
+     */
+    public boolean isTickLabelIn()
+    {
+        return tickLabelIn;
+    }
+
+    /**
+     * Sets the tick label in.
+     *
+     * @param tickLabelIn the new tick label in
+     */
+    public void setTickLabelIn(boolean tickLabelIn)
+    {
+        this.tickLabelIn = tickLabelIn;
+        reInitialize();
+    }
+    
+    /**
+     * Gets the tick mark scale.
+     *
+     * @return the tick mark scale
+     */
+    public float getTickMarkScale()
+    {
+        return tickMarkScale;
     }
 
     @Override
