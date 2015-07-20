@@ -119,13 +119,13 @@ public class RadialCustom extends AbstractRadial {
     private final Point2D pointerImageOrigin = new Point2D.Double();
     private final Point2D measuredValueOffset = new Point2D.Double();
     
-    private final float frameThikness = 0.08f;
     private final float outerFrameScale = 1f;
-    private final float backgroundScale = outerFrameScale - frameThikness;//0.92;
-    private final float mainFrameScale = outerFrameScale - 0.02f;//0.98;
-    private final float innerFrameScale = backgroundScale + 0.02f;//0.94;
-    private final float innerFrameGlossy1 = innerFrameScale * 1.01f;
-    private final float innerFrameGlossy2 = innerFrameScale * 1.005f;
+    private float frameThikness = 0.08f;
+    private float mainFrameScale = outerFrameScale - 0.02f;
+    public float backgroundScale = outerFrameScale - frameThikness;
+    private float innerFrameScale = backgroundScale + 0.02f;
+    private float innerFrameGlossy1 = innerFrameScale * 1.01f;
+    private float innerFrameGlossy2 = innerFrameScale * 1.005f;
     private float tickMarkScale = backgroundScale * 0.93f;
     private float tickMarkLabelDistanceFactor = 0.09f;
     
@@ -141,7 +141,7 @@ public class RadialCustom extends AbstractRadial {
         angle = 0;
         section3DEffectVisible = false;
         area3DEffectVisible = false;
-        init(getInnerBounds().width, getInnerBounds().height);
+//        init(getInnerBounds().width, getInnerBounds().height);
     }
 
     public RadialCustom(final Model MODEL) {
@@ -159,32 +159,27 @@ public class RadialCustom extends AbstractRadial {
     // <editor-fold defaultstate="collapsed" desc="Initialization">
     @Override
     public final AbstractGauge init(final int WIDTH, final int HEIGHT) {
-        if (tickLabelIn) {
-            tickMarkScale = backgroundScale * 0.97f;
-            tickMarkLabelDistanceFactor = 0.09f;
-        } else {
-            tickMarkScale = backgroundScale * 0.84f;
-            tickMarkLabelDistanceFactor = -0.04f;
-        }
+        computeScales();
         final int GAUGE_WIDTH = isFrameVisible() ? WIDTH : getGaugeBounds().width;
         final int GAUGE_HEIGHT = isFrameVisible() ? HEIGHT : getGaugeBounds().height;
         final Dimension GAUGE_DIM = new Dimension(GAUGE_WIDTH, GAUGE_HEIGHT);
+        setFramelessOffset(getGaugeBounds().x, getGaugeBounds().y);
+
+        CENTER.setLocation(getGaugeBounds().getCenterX() - getInsets().left, getGaugeBounds().getCenterX() - getInsets().top);
+        if (getGaugeType() == GaugeType.CUSTOM) {
+            GaugeTypeUtil.computeCenter(getCustomGaugeType(), GAUGE_DIM, CENTER);
+        }
         final float widthRadiusFactor = getWidthRadiusFactor();
-        final float tickMarkRadiusFactor = (float) (widthRadiusFactor * tickMarkScale);
+//        final float tickMarkRadiusFactor = (float) (widthRadiusFactor * tickMarkScale);
+//        System.out.println(String.format("tickMarkRadiusFactor: %f, widthRadiusFactor: %f, backgroundScale: %f, tickMarkScale: %f, frameThikness: %f, GAUGE_WIDTH: %d, GAUGE_WIDTH * widthRadiusFactor: %f, GAUGE_WIDTH * tickMarkRadiusFactor: %f",
+//                tickMarkRadiusFactor, widthRadiusFactor, backgroundScale, tickMarkScale, frameThikness, GAUGE_WIDTH, GAUGE_WIDTH * widthRadiusFactor, GAUGE_WIDTH * tickMarkRadiusFactor));
         final double radius = GAUGE_WIDTH * getWidthRadiusFactor();
         final int pointerWidth = (int) (radius * 2);
+        final float tickMarkRadiusFactor = (float) (widthRadiusFactor * tickMarkScale);
         final GaugeTypeInfo gaugeTypeInfo = getGaugeTypeInfo();
         
         if (GAUGE_WIDTH <= 1 || GAUGE_HEIGHT <= 1) {
             return this;
-        }
-
-        setFramelessOffset(getGaugeBounds().x, getGaugeBounds().y);
-
-        CENTER.setLocation(getGaugeBounds().getCenterX() - getInsets().left, getGaugeBounds().getCenterX() - getInsets().top);
-        if (getGaugeType() == GaugeType.CUSTOM)
-        {
-            GaugeTypeUtil.computeCenter(getCustomGaugeType(), GAUGE_DIM, CENTER);
         }
 
         if (isLcdVisible()) {
@@ -380,9 +375,44 @@ public class RadialCustom extends AbstractRadial {
 
         return this;
     }
-    
+
+    /**
+     * Compute scales.<b>
+     */
+    private void computeScales() {
+//        final GaugeTypeInfo gaugeTypeInfo = getGaugeTypeInfo();
+        float frameThikness = this.frameThikness;
+        if (isFrameVisible()) {
+//            if (gaugeTypeInfo.northInRange) {
+                backgroundScale = outerFrameScale - frameThikness;
+//            } else {
+//                backgroundScale = outerFrameScale - frameThikness / 2;
+//            }
+            mainFrameScale = outerFrameScale - 0.02f;
+            innerFrameScale = backgroundScale + 0.02f;
+            innerFrameGlossy1 = innerFrameScale * 1.01f;
+            innerFrameGlossy2 = innerFrameScale * 1.005f;
+        } else {
+            frameThikness = 0;
+            backgroundScale = outerFrameScale;
+            mainFrameScale = outerFrameScale;
+            innerFrameScale = outerFrameScale;
+            innerFrameGlossy1 = outerFrameScale;
+            innerFrameGlossy2 = outerFrameScale;
+        }
+
+        if (tickLabelIn) {
+            tickMarkScale = backgroundScale * 0.93f;
+            tickMarkLabelDistanceFactor = 0.09f;
+        } else {
+            tickMarkScale = backgroundScale * 0.84f;
+            tickMarkLabelDistanceFactor = -0.04f;
+        }
+    }
+
     /**
      * Returns the image of the posts for the pointer
+     * 
      * @param WIDTH
      * @param POSITIONS
      * @param image
@@ -2120,7 +2150,7 @@ public class RadialCustom extends AbstractRadial {
             final double OUTER_RADIUS = bImage.getWidth() * getWidthRadiusFactor() * tickMarkScale;
 
             for (Section section : getSections()) {
-                final double INNER_RADIUS = OUTER_RADIUS - OUTER_RADIUS /*bImage.getWidth()*/ * getSectionWidthFactor(section);
+                final double INNER_RADIUS = OUTER_RADIUS - OUTER_RADIUS * getSectionWidthFactor(section);
                 final Area INNER = new Area(new Ellipse2D.Double(CENTER.getX() - INNER_RADIUS, CENTER.getY() - INNER_RADIUS, 2 * INNER_RADIUS, 2 * INNER_RADIUS));
                 final double ANGLE_START;
                 final double ANGLE_EXTEND;
@@ -2160,34 +2190,32 @@ public class RadialCustom extends AbstractRadial {
             }
         }
     }
-    
-    protected float getSectionWidthFactor(Section section)
-    {
+
+    protected float getSectionWidthFactor(Section section) {
         return isExpandedSectionsEnabled() ? 0.24f : 0.08f;
     }
     // </editor-fold>
-    
+
     /**
      * Retrieve the new origin of the pointer image.
+     * 
      * @return new origin of the pointer image.
      */
-    protected Point2D getPointerImageOrigin()
-    {
+    protected Point2D getPointerImageOrigin() {
         return pointerImageOrigin;
     }
-    
+
     /**
      * Retrieve the offset if the measured value image.
+     * 
      * @return the offset if the measured value image.
      */
-    protected Point2D getMeasuredValueOffset()
-    {
+    protected Point2D getMeasuredValueOffset() {
         return measuredValueOffset;
     }
     
     @Override
-    public void calcInnerBounds(int WIDTH, int HEIGHT)
-    {
+    public void calcInnerBounds(int WIDTH, int HEIGHT) {
         final Insets INSETS = getInsets();
         final Dimension SIZE = computeDimensionWithRatio(WIDTH, HEIGHT);
         getInnerBounds().setBounds(INSETS.left, INSETS.top, WIDTH - INSETS.left - INSETS.right, HEIGHT - INSETS.top - INSETS.bottom);
@@ -2200,8 +2228,7 @@ public class RadialCustom extends AbstractRadial {
      *
      * @return true, if is tick label in
      */
-    public boolean isTickLabelIn()
-    {
+    public boolean isTickLabelIn() {
         return tickLabelIn;
     }
 
@@ -2210,20 +2237,38 @@ public class RadialCustom extends AbstractRadial {
      *
      * @param tickLabelIn the new tick label in
      */
-    public void setTickLabelIn(boolean tickLabelIn)
-    {
+    public void setTickLabelIn(boolean tickLabelIn) {
         this.tickLabelIn = tickLabelIn;
         reInitialize();
     }
-    
+
     /**
      * Gets the tick mark scale.
      *
      * @return the tick mark scale
      */
-    public float getTickMarkScale()
-    {
+    public float getTickMarkScale() {
         return tickMarkScale;
+    }
+
+    /**
+     * Gets the frame thikness.
+     *
+     * @return the frame thikness
+     */
+    public float getFrameThikness() {
+        return frameThikness;
+    }
+
+    /**
+     * Sets the frame thikness.
+     *
+     * @param frameThikness the new frame thikness
+     */
+    public void setFrameThikness(float frameThikness) {
+        this.frameThikness = frameThikness;
+        computeScales();
+        reInitialize();
     }
 
     @Override

@@ -85,9 +85,9 @@ public class GaugeTypeInfo
     /** True if the south axe is entirely in the view. */
     public final boolean southInRange;
     /** True if the east axe is entirely in the view. */
-    public final boolean eastInRange;
-    /** True if the west axe is entirely in the view. */
     public final boolean westInRange;
+    /** True if the west axe is entirely in the view. */
+    public final boolean eastInRange;
     
     /** The ratio left width from a square. */
     public final double leftWidthRatio;
@@ -177,12 +177,12 @@ public class GaugeTypeInfo
         
         northInRange = GaugeTypeUtil.isInRange(gaugeTypeMarged, Math.PI / 2);
         southInRange = GaugeTypeUtil.isInRange(gaugeTypeMarged, Math.PI * 3 / 2);
-        eastInRange = GaugeTypeUtil.isInRange(gaugeTypeMarged, Math.PI);
-        westInRange = GaugeTypeUtil.isInRange(gaugeTypeMarged, 0);
+        westInRange = GaugeTypeUtil.isInRange(gaugeTypeMarged, Math.PI);
+        eastInRange = GaugeTypeUtil.isInRange(gaugeTypeMarged, 0);
         
         //Compute ration on x
-        leftWidthRatio = GaugeTypeUtil.computeDirectionRatio(eastInRange, minCos <= 0, -minCos);
-        rightWidthRatio = GaugeTypeUtil.computeDirectionRatio(westInRange, maxCos >= 0, maxCos);
+        leftWidthRatio = GaugeTypeUtil.computeDirectionRatio(westInRange, minCos <= 0, -minCos);
+        rightWidthRatio = GaugeTypeUtil.computeDirectionRatio(eastInRange, maxCos >= 0, maxCos);
         widthRatio = (leftWidthRatio + rightWidthRatio) / 2;
         
         //Compute ration on y

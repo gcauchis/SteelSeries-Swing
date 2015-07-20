@@ -245,20 +245,61 @@ public final class GaugeTypeUtil
                 break;
             case ROUND:
             default:
-                Point2D center = computeCenter(gaugeTypeInfo, dimension);
-                double radius = computeRadius(gaugeTypeInfo, bound, center);
-                double range = gaugeTypeInfo.gaugeTypeMarged.ANGLE_RANGE;
+                final Point2D center = computeCenter(gaugeTypeInfo, dimension);
+                final double radius = computeRadius(gaugeTypeInfo, bound, center);
+                final double range = gaugeTypeInfo.gaugeTypeMarged.ANGLE_RANGE;
                 
-                Point2D startArc = new Point2D.Double(center.getX() + radius * gaugeTypeInfo.cosStartAngle , center.getY() - radius * gaugeTypeInfo.sinStartAngle);
-                Point2D endArc = new Point2D.Double(center.getX() + radius * gaugeTypeInfo.cosEndAngle , center.getY() - radius * gaugeTypeInfo.sinEndAngle);
-                
+                double startArcDeg = Math.toDegrees(gaugeTypeInfo.endAngle) % 360;
+                double rangeArcDeg = Math.toDegrees(range);
+                double endArcDeg = startArcDeg + rangeArcDeg;
+                double sinStart = Math.sin(Math.toRadians(startArcDeg));
+                double sinEnd = Math.sin(Math.toRadians(endArcDeg));
+                double cosStart = Math.cos(Math.toRadians(startArcDeg));
+                double cosEnd = Math.cos(Math.toRadians(endArcDeg));
+                if (rangeArcDeg > 180)  {
+                    if (!gaugeTypeInfo.northInRange && gaugeTypeInfo.southInRange && gaugeTypeInfo.westInRange && gaugeTypeInfo.eastInRange) {
+                        if (sinStart > sinEnd) {
+                            rangeArcDeg = 360 - 2 * (startArcDeg - 90);
+                        } else {
+                            startArcDeg = 180 - endArcDeg;
+                            rangeArcDeg = 180 + 2 * (endArcDeg % 360);
+                        }
+                    } else if (gaugeTypeInfo.northInRange && !gaugeTypeInfo.southInRange && gaugeTypeInfo.westInRange && gaugeTypeInfo.eastInRange) {
+                        if (sinStart < sinEnd) {
+                            rangeArcDeg = 360 - 2 * (startArcDeg - 270);
+                        } else {
+                            startArcDeg = 180 - endArcDeg;
+                            rangeArcDeg = 180 + 2 * ((endArcDeg - 180) % 360);
+                        }
+                    } else if (gaugeTypeInfo.northInRange && gaugeTypeInfo.southInRange && !gaugeTypeInfo.westInRange && gaugeTypeInfo.eastInRange) {
+                        if (cosStart < cosEnd) {
+                            rangeArcDeg = 360 - 2 * (startArcDeg - 180);
+                        } else {
+                            startArcDeg = 360 - endArcDeg;
+                            rangeArcDeg = 2 * (endArcDeg % 360);
+                        }
+                    } else if (gaugeTypeInfo.northInRange && gaugeTypeInfo.southInRange && gaugeTypeInfo.westInRange && !gaugeTypeInfo.eastInRange) {
+                        if (cosStart > cosEnd) {
+                            rangeArcDeg = 360 - 2 * startArcDeg;
+                        } else {
+                            startArcDeg = 360 - endArcDeg;
+                            rangeArcDeg = endArcDeg - startArcDeg;
+                        }
+                    }
+                    endArcDeg = startArcDeg + rangeArcDeg;
+                    sinStart = Math.sin(Math.toRadians(startArcDeg));
+                    sinEnd = Math.sin(Math.toRadians(endArcDeg));
+                    cosStart = Math.cos(Math.toRadians(startArcDeg));
+                    cosEnd = Math.cos(Math.toRadians(endArcDeg));
+                }
                 final GeneralPath path =  new GeneralPath();
                 path.setWindingRule(Path2D.WIND_EVEN_ODD);
+                final Point2D startArc = new Point2D.Double(center.getX() + radius * cosEnd , center.getY() - radius * sinEnd);
+                final Point2D endArc = new Point2D.Double(center.getX() + radius * cosStart , center.getY() - radius * sinStart);
                 //Need to be done twice... Why ?
                 path.moveTo(endArc.getX(), endArc.getX());
                 path.moveTo(endArc.getX(), endArc.getY());
-                final double startArcDeg = Math.toDegrees(gaugeTypeInfo.endAngle) % 360;
-                final double rangeArcDeg = Math.toDegrees(range);
+                
                 path.append(new Arc2D.Double(center.getX() - radius, center.getY() - radius, radius * 2, radius * 2, startArcDeg, rangeArcDeg, Arc2D.OPEN), true);
                 
                 
@@ -282,7 +323,7 @@ public final class GaugeTypeUtil
                     Point2D nextPoint = computeNextShapePoint(startArc, endArc, bound, currentAngle);
                     path.lineTo(nextPoint.getX(), nextPoint.getY());
                 } else {
-                    if (gaugeTypeInfo.northInRange && gaugeTypeInfo.southInRange && gaugeTypeInfo.eastInRange && gaugeTypeInfo.westInRange) {
+                    if (gaugeTypeInfo.northInRange && gaugeTypeInfo.southInRange && gaugeTypeInfo.westInRange && gaugeTypeInfo.eastInRange) {
                         path.append(new Arc2D.Double(center.getX() - radius, center.getY() - radius, radius * 2, radius * 2, Math.toDegrees(gaugeTypeInfo.endAngle + range), 360 - Math.toDegrees(range), Arc2D.OPEN), true);
                     } else {
                         path.lineTo(startArc.getX(), startArc.getY());
@@ -360,9 +401,9 @@ public final class GaugeTypeUtil
             return center.getY() - bound.y;
         } else if (gaugeTypeInfo.southInRange) {
             return bound.height - center.getY();
-        } else if (gaugeTypeInfo.eastInRange) {
-            return center.getX() - bound.x;
         } else if (gaugeTypeInfo.westInRange) {
+            return center.getX() - bound.x;
+        } else if (gaugeTypeInfo.eastInRange) {
             return bound.width - center.getX();
         } else if (gaugeTypeInfo.maxSin > 0) {
             //North
