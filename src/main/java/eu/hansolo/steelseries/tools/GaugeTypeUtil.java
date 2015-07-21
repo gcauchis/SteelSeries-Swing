@@ -46,8 +46,7 @@ public final class GaugeTypeUtil
     public static final double FRAME_THETA_MARGING_RAD = Math.toRadians(FRAME_THETA_MARGING_DEG);
     public static final double FRAME_MARGING = 0.10;
 
-    private GaugeTypeUtil()
-    {
+    private GaugeTypeUtil() {
     }
     
     /**
@@ -57,10 +56,8 @@ public final class GaugeTypeUtil
      * @param dimension the current dimension who will be update.
      * @param center the center who will be update.
      */
-    public static void computeDimention(final GaugeType gaugeType, final CustomGaugeType customGaugeType,final Dimension dimension, final Point2D center)
-    {
-        if (gaugeType != GaugeType.CUSTOM)
-        {
+    public static void computeDimention(final GaugeType gaugeType, final CustomGaugeType customGaugeType,final Dimension dimension, final Point2D center) {
+        if (gaugeType != GaugeType.CUSTOM) {
             computeDimention(new CustomGaugeType(gaugeType.FREE_AREA_ANGLE,
                                                     gaugeType.ROTATION_OFFSET,
                                                     gaugeType.TICKMARK_OFFSET,
@@ -72,9 +69,7 @@ public final class GaugeTypeUtil
                                                     gaugeType.LCD_FACTORS,
                                                     gaugeType.POST_POSITIONS),
                                 dimension, center);
-        }
-        else
-        {
+        } else {
             computeDimention(customGaugeType, dimension, center);
         }
     }
@@ -85,17 +80,13 @@ public final class GaugeTypeUtil
      * @param dimension the current dimension who will be update.
      * @param center the center who will be update.
      */
-    private static void computeDimention(final CustomGaugeType gaugeType, final Dimension dimension, final Point2D center)
-    {
+    private static void computeDimention(final CustomGaugeType gaugeType, final Dimension dimension, final Point2D center) {
         final GaugeTypeInfo gaugeTypeInfo = GaugeTypeInfo.getGaugeTypeInfo(gaugeType);
         
         //compute new dimension
-        if (dimension.height * gaugeTypeInfo.dimPropRatio < dimension.width)
-        {
+        if (dimension.height * gaugeTypeInfo.dimPropRatio < dimension.width) {
             dimension.width = (int) (dimension.height * gaugeTypeInfo.dimPropRatio);
-        }
-        else
-        {
+        } else {
             dimension.height = (int) (dimension.width / gaugeTypeInfo.dimPropRatio);
         }
         
@@ -109,8 +100,7 @@ public final class GaugeTypeUtil
      * @param dimension the current dimension.
      * @param center the center to update.
      */
-    public static void computeCenter(final CustomGaugeType gaugeType, final Dimension dimension, final Point2D center)
-    {
+    public static void computeCenter(final CustomGaugeType gaugeType, final Dimension dimension, final Point2D center) {
         center.setLocation(computeCenter(GaugeTypeInfo.getGaugeTypeInfo(gaugeType), dimension));
     }
     
@@ -121,8 +111,7 @@ public final class GaugeTypeUtil
      * @param dimension the current dimension.
      * @return the center position.
      */
-    public static Point2D computeCenter(final GaugeTypeInfo gaugeTypeInfo, final Dimension dimension)
-    {
+    public static Point2D computeCenter(final GaugeTypeInfo gaugeTypeInfo, final Dimension dimension) {
       //Compute new center
         return new Point2D.Double((int) (dimension.width * gaugeTypeInfo.leftWidthRatio / (gaugeTypeInfo.leftWidthRatio + gaugeTypeInfo.rightWidthRatio)),
                                     (int) (dimension.height * gaugeTypeInfo.upHeightRatio / (gaugeTypeInfo.upHeightRatio + gaugeTypeInfo.downHeightRatio)));
@@ -136,21 +125,15 @@ public final class GaugeTypeUtil
      * @param ratio the ratios if present in the direction.
      * @return a ratio between {@link #FRAME_MARGING FRAME_MARGING} and 1.
      */
-    protected static double computeDirectionRatio(final boolean directionsInRange, final boolean hasElementInDirections, final double ratio)
-    {
+    protected static double computeDirectionRatio(final boolean directionsInRange, final boolean hasElementInDirections, final double ratio) {
         double result;
-        if (directionsInRange)
-        {
+        if (directionsInRange) {
             //half gauge is present in the direction.
             result = 1;
-        }
-        else if (hasElementInDirections)
-        {
+        } else if (hasElementInDirections) {
             //gauge a little present in the direction
             result = Math.max(ratio, FRAME_MARGING);
-        }
-        else
-        {
+        } else {
             //no gauge in the directions
             result = FRAME_MARGING;
         }
@@ -165,10 +148,8 @@ public final class GaugeTypeUtil
      * @param angle the angle to check in radians with reference the trigonometric circle.
      * @return <pre>true</pre> if the angle is in the range of the gauge.
      */
-    public static boolean isInRange(final CustomGaugeType gaugeType, final double angle)
-    {
-        if (gaugeType.ANGLE_RANGE >= 2 * Math.PI)
-        {
+    public static boolean isInRange(final CustomGaugeType gaugeType, final double angle) {
+        if (gaugeType.ANGLE_RANGE >= 2 * Math.PI) {
             return true;
         }
         final double start = roundTrigoValue(gaugeType.ROTATION_OFFSET);
@@ -176,12 +157,9 @@ public final class GaugeTypeUtil
         final double range = gaugeType.ANGLE_RANGE;
         final double end = start + range;
         
-        if (angleRef >= start)
-        {
+        if (angleRef >= start) {
             return angleRef <= end;
-        }
-        else if (end > 2 * Math.PI)
-        {
+        } else if (end > 2 * Math.PI) {
             return angleRef <= (end) % (2 * Math.PI);
         }
         return false;
@@ -192,8 +170,7 @@ public final class GaugeTypeUtil
      * @param angle a trigo angle.
      * @return
      */
-    protected static double toSteelSeriesAngle(final double angle)
-    {
+    protected static double toSteelSeriesAngle(final double angle) {
         return roundTrigoValue(-angle + Math.PI / 2);
     }
     
@@ -202,8 +179,7 @@ public final class GaugeTypeUtil
      * @param angle a steel series angle.
      * @return
      */
-    protected static double toTrigoAngle(final double angle)
-    {
+    protected static double toTrigoAngle(final double angle) {
         return roundTrigoValue(-angle + Math.PI / 2);
     }
     
@@ -324,7 +300,7 @@ public final class GaugeTypeUtil
                     path.lineTo(nextPoint.getX(), nextPoint.getY());
                 } else {
                     if (gaugeTypeInfo.northInRange && gaugeTypeInfo.southInRange && gaugeTypeInfo.westInRange && gaugeTypeInfo.eastInRange) {
-                        path.append(new Arc2D.Double(center.getX() - radius, center.getY() - radius, radius * 2, radius * 2, Math.toDegrees(gaugeTypeInfo.endAngle + range), 360 - Math.toDegrees(range), Arc2D.OPEN), true);
+                        path.append(new Arc2D.Double(center.getX() - radius, center.getY() - radius, radius * 2, radius * 2, endArcDeg, 360 - rangeArcDeg, Arc2D.OPEN), true);
                     } else {
                         path.lineTo(startArc.getX(), startArc.getY());
                     }
