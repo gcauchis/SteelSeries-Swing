@@ -53,14 +53,14 @@ public class GaugeTypeUtilsTest
         final double thetaMargingDeg = GaugeTypeUtil.FRAME_THETA_MARGING_DEG;
         Dimension dim = new Dimension(200, 200);
         Point2D center = new Point2D.Double(0, 0);
-        GaugeTypeUtil.computeDimention(GaugeType.CUSTOM, new CustomGaugeType(360, 0), dim, center);
+        GaugeTypeUtil.computeDimention(GaugeTypeInfo.getGaugeTypeInfo(new CustomGaugeType(360, 0), 0), dim, center);
         assertEquals(200, dim.height);
         assertEquals(200, dim.width);
         assertEquals(100, (int) center.getX());
         assertEquals(100, (int) center.getY());
         
         dim.setSize(200, 200);
-        GaugeTypeUtil.computeDimention(GaugeType.CUSTOM, new CustomGaugeType(180, 0), dim, center);
+        GaugeTypeUtil.computeDimention(GaugeTypeInfo.getGaugeTypeInfo(new CustomGaugeType(180, 0), 0), dim, center);
         double ratioLeft = Math.max(GaugeTypeUtil.FRAME_MARGING, Math.cos(Math.PI / 2 - GaugeTypeUtil.FRAME_THETA_MARGING_RAD));
         assertEquals((int) (100 + ratioLeft * 100), dim.width);
         assertEquals(200, dim.height);
@@ -68,7 +68,7 @@ public class GaugeTypeUtilsTest
         assertEquals(100, (int) center.getY());
         
         dim.setSize(200, 200);
-        GaugeTypeUtil.computeDimention(GaugeType.CUSTOM, new CustomGaugeType(90, 0), dim, center);
+        GaugeTypeUtil.computeDimention(GaugeTypeInfo.getGaugeTypeInfo(new CustomGaugeType(90, 0), 0), dim, center);
         ratioLeft = Math.max(GaugeTypeUtil.FRAME_MARGING, Math.cos(Math.PI / 2 - GaugeTypeUtil.FRAME_THETA_MARGING_RAD));
         double ratioDown = Math.max(GaugeTypeUtil.FRAME_MARGING, Math.sin(GaugeTypeUtil.FRAME_THETA_MARGING_RAD));
         assertEquals(199, dim.width);
@@ -77,14 +77,14 @@ public class GaugeTypeUtilsTest
         assertEquals((int) (200 * 1 / (1 + ratioDown)), (int) center.getY());
         
         dim.setSize(200, 200);
-        GaugeTypeUtil.computeDimention(GaugeType.CUSTOM, new CustomGaugeType(180 - 2 * thetaMargingDeg, 0 + thetaMargingDeg), dim, center);
+        GaugeTypeUtil.computeDimention(GaugeTypeInfo.getGaugeTypeInfo(new CustomGaugeType(180 - 2 * thetaMargingDeg, 0 + thetaMargingDeg), 0), dim, center);
         assertEquals((int) (100 + GaugeTypeUtil.FRAME_MARGING * 100), dim.width);
         assertEquals(200, dim.height);
         assertEquals((int) (GaugeTypeUtil.FRAME_MARGING * 100), (int) center.getX());
         assertEquals(100, (int) center.getY());
         
         dim.setSize(200, 200);
-        GaugeTypeUtil.computeDimention(GaugeType.CUSTOM, new CustomGaugeType(90 - 2 * thetaMargingDeg, 0 + thetaMargingDeg), dim, center);
+        GaugeTypeUtil.computeDimention(GaugeTypeInfo.getGaugeTypeInfo(new CustomGaugeType(90 - 2 * thetaMargingDeg, 0 + thetaMargingDeg), 0), dim, center);
         assertEquals(200, dim.width);
         assertEquals(200, dim.height);
         assertEquals((int) (200 * GaugeTypeUtil.FRAME_MARGING / (1 + GaugeTypeUtil.FRAME_MARGING)), (int) center.getX());

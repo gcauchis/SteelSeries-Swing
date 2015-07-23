@@ -122,7 +122,7 @@ public class RadialCustom extends AbstractRadial {
     private final float outerFrameScale = 1f;
     private float frameThikness = 0.08f;
     private float mainFrameScale = outerFrameScale - 0.02f;
-    public float backgroundScale = outerFrameScale - frameThikness;
+    private float backgroundScale = outerFrameScale - frameThikness;
     private float innerFrameScale = backgroundScale + 0.02f;
     private float innerFrameGlossy1 = innerFrameScale * 1.01f;
     private float innerFrameGlossy2 = innerFrameScale * 1.005f;
@@ -167,7 +167,7 @@ public class RadialCustom extends AbstractRadial {
 
         CENTER.setLocation(getGaugeBounds().getCenterX() - getInsets().left, getGaugeBounds().getCenterX() - getInsets().top);
         if (getGaugeType() == GaugeType.CUSTOM) {
-            GaugeTypeUtil.computeCenter(getCustomGaugeType(), GAUGE_DIM, CENTER);
+            GaugeTypeUtil.computeCenter(getGaugeTypeInfo(), GAUGE_DIM, CENTER);
         }
         final float widthRadiusFactor = getWidthRadiusFactor();
 //        final float tickMarkRadiusFactor = (float) (widthRadiusFactor * tickMarkScale);
@@ -997,7 +997,7 @@ public class RadialCustom extends AbstractRadial {
 
     protected GaugeTypeInfo getGaugeTypeInfo()
     {
-        return GaugeTypeInfo.getGaugeTypeInfo(getGaugeType(), getCustomGaugeType());
+        return GaugeTypeInfo.getGaugeTypeInfo(getGaugeType(), getCustomGaugeType(), isFrameVisible() ? getFrameThikness() : 0);
     }
     
     protected void initPointer(final int GAUGE_WIDTH) {
@@ -1049,7 +1049,7 @@ public class RadialCustom extends AbstractRadial {
 
         boolean fadeInOut = false;
 
-        final Shape GAUGE_BACKGROUND = GaugeTypeUtil.buildShape(GaugeTypeInfo.getGaugeTypeInfo(getCustomGaugeType()), new Dimension(IMAGE_WIDTH, IMAGE_HEIGHT), backgroundScale, getFrameType());
+        final Shape GAUGE_BACKGROUND = GaugeTypeUtil.buildShape(getGaugeTypeInfo(), new Dimension(IMAGE_WIDTH, IMAGE_HEIGHT), backgroundScale, getFrameType());
 
         final Point2D GAUGE_BACKGROUND_START = new Point2D.Double(0, GAUGE_BACKGROUND.getBounds2D().getMinY());
         final Point2D GAUGE_BACKGROUND_STOP = new Point2D.Double(0, GAUGE_BACKGROUND.getBounds2D().getMaxY());
@@ -1260,16 +1260,16 @@ public class RadialCustom extends AbstractRadial {
         final Dimension imageDimension = new Dimension(IMAGE_WIDTH, IMAGE_HEIGHT);
 
         // Define shape that will be subtracted from frame shapes
-        final Shape SUBTRACT_PATH = GaugeTypeUtil.buildShape(GaugeTypeInfo.getGaugeTypeInfo(getCustomGaugeType()), imageDimension, backgroundScale, getFrameType());
+        final Shape SUBTRACT_PATH = GaugeTypeUtil.buildShape(getGaugeTypeInfo(), imageDimension, backgroundScale, getFrameType());
         final Area SUBTRACT = new Area(SUBTRACT_PATH);
 
-        final Shape FRAME_OUTERFRAME = GaugeTypeUtil.buildShape(GaugeTypeInfo.getGaugeTypeInfo(getCustomGaugeType()), imageDimension, outerFrameScale, getFrameType());
+        final Shape FRAME_OUTERFRAME = GaugeTypeUtil.buildShape(getGaugeTypeInfo(), imageDimension, outerFrameScale, getFrameType());
         G2.setPaint(getOuterFrameColor());
         final Area FRAME_OUTERFRAME_AREA = new Area(FRAME_OUTERFRAME);
         FRAME_OUTERFRAME_AREA.subtract(SUBTRACT);
         G2.fill(FRAME_OUTERFRAME_AREA);
 
-        final Shape FRAME_MAIN = GaugeTypeUtil.buildShape(GaugeTypeInfo.getGaugeTypeInfo(getCustomGaugeType()), imageDimension, mainFrameScale, getFrameType());
+        final Shape FRAME_MAIN = GaugeTypeUtil.buildShape(getGaugeTypeInfo(), imageDimension, mainFrameScale, getFrameType());
         final Point2D FRAME_MAIN_START = new Point2D.Double(0, FRAME_MAIN.getBounds2D().getMinY());
         final Point2D FRAME_MAIN_STOP = new Point2D.Double(0, FRAME_MAIN.getBounds2D().getMaxY());
         final Point2D FRAME_MAIN_CENTER = new Point2D.Double(FRAME_MAIN.getBounds2D().getCenterX(), FRAME_MAIN.getBounds2D().getHeight() * 0.7753623188 * VERTICAL_SCALE);
@@ -1390,25 +1390,25 @@ public class RadialCustom extends AbstractRadial {
                     break;
 
                 case GLOSSY_METAL:
-                    final Shape FRAME_MAIN_GLOSSY1 = GaugeTypeUtil.buildShape(GaugeTypeInfo.getGaugeTypeInfo(getCustomGaugeType()), imageDimension, outerFrameScale, getFrameType());
+                    final Shape FRAME_MAIN_GLOSSY1 = GaugeTypeUtil.buildShape(getGaugeTypeInfo(), imageDimension, outerFrameScale, getFrameType());
                     final Area FRAME_MAIN_GLOSSY_1 = new Area(FRAME_MAIN_GLOSSY1);
                     FRAME_MAIN_GLOSSY_1.subtract(SUBTRACT);
                     G2.setPaint(new RadialGradientPaint(new Point2D.Double(0.5 * IMAGE_WIDTH, 0.9927007299270073 * IMAGE_HEIGHT * VERTICAL_SCALE), (float)(0.4953271028037383 * IMAGE_WIDTH), new float[]{0.0f, 0.01f, 0.95f, 1.0f}, new Color[]{new Color(0.8235294118f, 0.8235294118f, 0.8235294118f, 1f), new Color(0.8235294118f, 0.8235294118f, 0.8235294118f, 1f), new Color(0.8235294118f, 0.8235294118f, 0.8235294118f, 1f), new Color(0.9960784314f, 0.9960784314f, 0.9960784314f, 1f)}));
                     G2.fill(FRAME_MAIN_GLOSSY_1);
 
-                    final Shape FRAME_MAIN_GLOSSY2 = GaugeTypeUtil.buildShape(GaugeTypeInfo.getGaugeTypeInfo(getCustomGaugeType()), imageDimension, mainFrameScale, getFrameType());
+                    final Shape FRAME_MAIN_GLOSSY2 = GaugeTypeUtil.buildShape(getGaugeTypeInfo(), imageDimension, mainFrameScale, getFrameType());
                     final Area FRAME_MAIN_GLOSSY_2 = new Area(FRAME_MAIN_GLOSSY2);
                     FRAME_MAIN_GLOSSY_2.subtract(SUBTRACT);
                     G2.setPaint(new LinearGradientPaint(new Point2D.Double(0.5 * IMAGE_WIDTH, 0.0072992700729927005 * IMAGE_HEIGHT * VERTICAL_SCALE), new Point2D.Double(0.5000000000000001 * IMAGE_WIDTH, 1.0 * IMAGE_HEIGHT * VERTICAL_SCALE), new float[]{0.0f, 0.24f, 0.34f, 0.65f, 0.85f, 1.0f}, new Color[]{new Color(0.9764705882f, 0.9764705882f, 0.9764705882f, 1f), new Color(0.7843137255f, 0.7647058824f, 0.7490196078f, 1f), new Color(0.9882352941f, 0.9882352941f, 0.9882352941f, 1f), new Color(0.1215686275f, 0.1215686275f, 0.1215686275f, 1f), new Color(0.7843137255f, 0.7607843137f, 0.7529411765f, 1f), new Color(0.8156862745f, 0.8156862745f, 0.8156862745f, 1f)}));
                     G2.fill(FRAME_MAIN_GLOSSY_2);
 
-                    final Shape FRAME_MAIN_GLOSSY3 = GaugeTypeUtil.buildShape(GaugeTypeInfo.getGaugeTypeInfo(getCustomGaugeType()), imageDimension, innerFrameGlossy1, getFrameType());
+                    final Shape FRAME_MAIN_GLOSSY3 = GaugeTypeUtil.buildShape(getGaugeTypeInfo(), imageDimension, innerFrameGlossy1, getFrameType());
                     final Area FRAME_MAIN_GLOSSY_3 = new Area(FRAME_MAIN_GLOSSY3);
                     FRAME_MAIN_GLOSSY_3.subtract(SUBTRACT);
                     G2.setPaint(new Color(0.9647058824f, 0.9647058824f, 0.9647058824f, 1f));
                     G2.fill(FRAME_MAIN_GLOSSY_3);
 
-                    final Shape FRAME_MAIN_GLOSSY4 = GaugeTypeUtil.buildShape(GaugeTypeInfo.getGaugeTypeInfo(getCustomGaugeType()), imageDimension, innerFrameGlossy2, getFrameType());
+                    final Shape FRAME_MAIN_GLOSSY4 = GaugeTypeUtil.buildShape(getGaugeTypeInfo(), imageDimension, innerFrameGlossy2, getFrameType());
                     final Area FRAME_MAIN_GLOSSY_4 = new Area(FRAME_MAIN_GLOSSY4);
                     FRAME_MAIN_GLOSSY_4.subtract(SUBTRACT);
                     G2.setPaint(new Color(0.2f, 0.2f, 0.2f, 1f));
@@ -1646,7 +1646,7 @@ public class RadialCustom extends AbstractRadial {
             }
         }
 
-        final Shape FRAME_INNERFRAME = GaugeTypeUtil.buildShape(GaugeTypeInfo.getGaugeTypeInfo(getCustomGaugeType()), imageDimension, innerFrameScale, getFrameType());
+        final Shape FRAME_INNERFRAME = GaugeTypeUtil.buildShape(getGaugeTypeInfo(), imageDimension, innerFrameScale, getFrameType());
         G2.setPaint(getInnerFrameColor());
         final Area FRAME_INNERFRAME_AREA = new Area(FRAME_INNERFRAME);
         FRAME_INNERFRAME_AREA.subtract(SUBTRACT);
@@ -2085,8 +2085,8 @@ public class RadialCustom extends AbstractRadial {
     @Override
     public void setCustomGaugeType(CustomGaugeType CUSTOM_GAUGE_TYPE)
     {
-        setRatioWH(GaugeTypeInfo.getGaugeTypeInfo(CUSTOM_GAUGE_TYPE).dimPropRatio);
         super.setCustomGaugeType(CUSTOM_GAUGE_TYPE);
+        setRatioWH(getGaugeTypeInfo().dimPropRatio);
     }
     // </editor-fold>
 

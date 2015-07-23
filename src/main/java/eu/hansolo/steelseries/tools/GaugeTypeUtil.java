@@ -44,7 +44,7 @@ public final class GaugeTypeUtil
 {
     public static final double FRAME_THETA_MARGING_DEG = 8;
     public static final double FRAME_THETA_MARGING_RAD = Math.toRadians(FRAME_THETA_MARGING_DEG);
-    public static final double FRAME_MARGING = 0.10;
+    public static final double FRAME_MARGING = 0.12;
 
     private GaugeTypeUtil() {
     }
@@ -52,36 +52,10 @@ public final class GaugeTypeUtil
     /**
      * Compute the dimension and center using the given param. 
      * @param gaugeType the gauge type.
-     * @param customGaugeType the custom gauge type.
      * @param dimension the current dimension who will be update.
      * @param center the center who will be update.
      */
-    public static void computeDimention(final GaugeType gaugeType, final CustomGaugeType customGaugeType,final Dimension dimension, final Point2D center) {
-        if (gaugeType != GaugeType.CUSTOM) {
-            computeDimention(new CustomGaugeType(gaugeType.FREE_AREA_ANGLE,
-                                                    gaugeType.ROTATION_OFFSET,
-                                                    gaugeType.TICKMARK_OFFSET,
-                                                    gaugeType.TICKLABEL_ORIENTATION_CHANGE_ANGLE,
-                                                    gaugeType.ANGLE_RANGE,
-                                                    gaugeType.ORIGIN_CORRECTION,
-                                                    gaugeType.APEX_ANGLE,
-                                                    gaugeType.BARGRAPH_OFFSET,
-                                                    gaugeType.LCD_FACTORS,
-                                                    gaugeType.POST_POSITIONS),
-                                dimension, center);
-        } else {
-            computeDimention(customGaugeType, dimension, center);
-        }
-    }
-    
-    /**
-     * Compute the dimension and center using the given param. 
-     * @param gaugeType the gauge type.
-     * @param dimension the current dimension who will be update.
-     * @param center the center who will be update.
-     */
-    private static void computeDimention(final CustomGaugeType gaugeType, final Dimension dimension, final Point2D center) {
-        final GaugeTypeInfo gaugeTypeInfo = GaugeTypeInfo.getGaugeTypeInfo(gaugeType);
+    public static void computeDimention(final GaugeTypeInfo gaugeTypeInfo, final Dimension dimension, final Point2D center) {
         
         //compute new dimension
         if (dimension.height * gaugeTypeInfo.dimPropRatio < dimension.width) {
@@ -100,8 +74,8 @@ public final class GaugeTypeUtil
      * @param dimension the current dimension.
      * @param center the center to update.
      */
-    public static void computeCenter(final CustomGaugeType gaugeType, final Dimension dimension, final Point2D center) {
-        center.setLocation(computeCenter(GaugeTypeInfo.getGaugeTypeInfo(gaugeType), dimension));
+    public static void computeCenter(final GaugeTypeInfo gaugeTypeInfo, final Dimension dimension, final Point2D center) {
+        center.setLocation(computeCenter(gaugeTypeInfo, dimension));
     }
     
     /**
@@ -222,17 +196,19 @@ public final class GaugeTypeUtil
             case ROUND:
             default:
                 final Point2D center = computeCenter(gaugeTypeInfo, dimension);
-                final double radius = computeRadius(gaugeTypeInfo, bound, center);
-                final double range = gaugeTypeInfo.gaugeTypeMarged.ANGLE_RANGE;
-                
-                double startArcDeg = Math.toDegrees(gaugeTypeInfo.endAngle) % 360;
+                final double radius = computeRadius(gaugeTypeInfo, new Rectangle(dimension), center) * ratio;
+                final CustomGaugeType gaugeType = gaugeTypeInfo.computeGaugeTypeExtenal((float) ratio);
+                final double range = gaugeType.ANGLE_RANGE;
+
+                double startArcDeg = Math.toDegrees(GaugeTypeUtil.roundTrigoValue(GaugeTypeUtil.toTrigoAngle(gaugeType.ROTATION_OFFSET) - gaugeType.ANGLE_RANGE)) % 360;
                 double rangeArcDeg = Math.toDegrees(range);
+
                 double endArcDeg = startArcDeg + rangeArcDeg;
                 double sinStart = Math.sin(Math.toRadians(startArcDeg));
                 double sinEnd = Math.sin(Math.toRadians(endArcDeg));
                 double cosStart = Math.cos(Math.toRadians(startArcDeg));
                 double cosEnd = Math.cos(Math.toRadians(endArcDeg));
-                if (rangeArcDeg > 180)  {
+                if (rangeArcDeg > 180) {
                     if (!gaugeTypeInfo.northInRange && gaugeTypeInfo.southInRange && gaugeTypeInfo.westInRange && gaugeTypeInfo.eastInRange) {
                         if (sinStart > sinEnd) {
                             rangeArcDeg = 360 - 2 * (startArcDeg - 90);
@@ -262,23 +238,27 @@ public final class GaugeTypeUtil
                             rangeArcDeg = endArcDeg - startArcDeg;
                         }
                     }
+                    startArcDeg %= 360;
+                    if (startArcDeg < 0)
+                    {
+                        startArcDeg = 360 + startArcDeg;
+                    }
                     endArcDeg = startArcDeg + rangeArcDeg;
                     sinStart = Math.sin(Math.toRadians(startArcDeg));
                     sinEnd = Math.sin(Math.toRadians(endArcDeg));
                     cosStart = Math.cos(Math.toRadians(startArcDeg));
                     cosEnd = Math.cos(Math.toRadians(endArcDeg));
                 }
-                final GeneralPath path =  new GeneralPath();
+                final GeneralPath path = new GeneralPath();
                 path.setWindingRule(Path2D.WIND_EVEN_ODD);
-                final Point2D startArc = new Point2D.Double(center.getX() + radius * cosEnd , center.getY() - radius * sinEnd);
-                final Point2D endArc = new Point2D.Double(center.getX() + radius * cosStart , center.getY() - radius * sinStart);
-                //Need to be done twice... Why ?
+                final Point2D startArc = new Point2D.Double(center.getX() + radius * cosEnd, center.getY() - radius * sinEnd);
+                final Point2D endArc = new Point2D.Double(center.getX() + radius * cosStart, center.getY() - radius * sinStart);
+                // Need to be done twice... Why ?
                 path.moveTo(endArc.getX(), endArc.getX());
                 path.moveTo(endArc.getX(), endArc.getY());
-                
+
                 path.append(new Arc2D.Double(center.getX() - radius, center.getY() - radius, radius * 2, radius * 2, startArcDeg, rangeArcDeg, Arc2D.OPEN), true);
-                
-                
+
                 double currentAngle = (startArcDeg + rangeArcDeg) % 360;
                 if (range < Math.PI / 2) {
                     Point2D nextPoint = computeNextShapePoint(startArc, null, bound, currentAngle);
@@ -305,16 +285,17 @@ public final class GaugeTypeUtil
                         path.lineTo(startArc.getX(), startArc.getY());
                     }
                 }
-                
+
                 path.closePath();
                 shape = path;
                 break;
         }
         return shape;
     }
-    
+
     /**
      * Compute the next point in trigo rotation order.
+     * 
      * @param current the current point.
      * @param last the last point if last link else null;
      * @param bound the bound;
