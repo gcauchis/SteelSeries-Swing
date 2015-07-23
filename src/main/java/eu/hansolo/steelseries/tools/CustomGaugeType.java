@@ -71,6 +71,19 @@ public class CustomGaugeType
      */
     public CustomGaugeType(double RANGE, double OFFSET, PostPosition... POST_POSITIONS)
     {
+        this(RANGE, OFFSET, new Rectangle2D.Double(0.4, 0.55, 0.4, 0.15), POST_POSITIONS);
+    }
+    
+    /**
+     * Create a custom gauge type with the given range starting at the given offset.
+     *
+     * @param RANGE the range in degree.
+     * @param OFFSET the offset in degree.
+     * @param LCD_FACTORS the lcd factors
+     * @param POST_POSITIONS the post positions
+     */
+    public CustomGaugeType(double RANGE, double OFFSET, Rectangle2D LCD_FACTORS, PostPosition... POST_POSITIONS)
+    {
         this.FREE_AREA_ANGLE = 2 * Math.PI - Math.toRadians(RANGE);
         this.ROTATION_OFFSET = Math.toRadians(OFFSET);
         this.TICKMARK_OFFSET = 0;
@@ -88,7 +101,7 @@ public class CustomGaugeType
         }
         this.APEX_ANGLE = RANGE;
         this.BARGRAPH_OFFSET = 0;
-        this.LCD_FACTORS = new Rectangle2D.Double(0.4, 0.55, 0.4, 0.15);
+        this.LCD_FACTORS = LCD_FACTORS;
         this.POST_POSITIONS = POST_POSITIONS;
     }
 }

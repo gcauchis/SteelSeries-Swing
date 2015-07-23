@@ -209,66 +209,64 @@ public class GaugeTypeInfo {
 
     public CustomGaugeType computeGaugeTypeExtenal(final float radiusCurrent) {
         CustomGaugeType result = gaugeTypeMarged;
-//        final float radiusBackground = 1 - frameThickness;
-//        if (frameThickness > 0 && radiusBackground > 0.5 && radiusBackground < radiusCurrent) {
-//            // in rad
-//            final double startAngle = GaugeTypeUtil.toTrigoAngle(gaugeTypeMarged.ROTATION_OFFSET);
-//            final double range = gaugeTypeMarged.ANGLE_RANGE;
-//            final double endAngle = GaugeTypeUtil.roundTrigoValue(startAngle - range);
-//            final boolean northInRange = GaugeTypeUtil.isInRange(gaugeTypeMarged, Math.PI / 2);
-//            final boolean southInRange = GaugeTypeUtil.isInRange(gaugeTypeMarged, Math.PI * 3 / 2);
-//            final boolean westInRange = GaugeTypeUtil.isInRange(gaugeTypeMarged, Math.PI);
-//            final boolean eastInRange = GaugeTypeUtil.isInRange(gaugeTypeMarged, 0);
-//
-//            if (!northInRange || !southInRange || !westInRange || !eastInRange) {
-//                double computedStartAngle = startAngle;
-//                double shift = 0;
-//                final double SHIFT_INC = Math.PI / 180;
-//                final float thickness = radiusCurrent - radiusBackground;
-//                if (startAngle < Math.PI / 2) {
-//                    while (thickness > radiusCurrent * Math.abs(Math.sin(startAngle + shift)) - radiusBackground * Math.abs(Math.sin(startAngle)) && startAngle + shift < Math.PI / 2) {
-//                        shift += SHIFT_INC;
-//                    }
-//                } else if (startAngle < Math.PI) {
-//                    while (thickness > radiusCurrent * Math.abs(Math.cos(startAngle + shift)) - radiusBackground * Math.abs(Math.cos(startAngle)) && startAngle + shift < Math.PI) {
-//                        shift += SHIFT_INC;
-//                    }
-//                } else if (startAngle < 3 * Math.PI / 2) {
-//                    while (thickness > radiusCurrent * Math.abs(Math.sin(startAngle + shift)) - radiusBackground * Math.abs(Math.sin(startAngle)) && startAngle + shift < 3 * Math.PI / 2) {
-//                        shift += SHIFT_INC;
-//                    }
-//                } else {
-//                    while (thickness > radiusCurrent * Math.abs(Math.cos(startAngle + shift)) - radiusBackground * Math.abs(Math.cos(startAngle)) && startAngle + shift < 2 * Math.PI) {
-//                        shift += SHIFT_INC;
-//                    }
-//                }
-//                computedStartAngle = startAngle + shift;
-//                double computedRange = range + shift;
-////                if (endAngle < Math.PI / 2) {
-////                    while (thickness > radiusCurrent * Math.abs(Math.cos(endAngle - shift)) - radiusBackground * Math.abs(Math.cos(endAngle)) && shift < Math.PI / 4) {
-////                        shift += SHIFT_INC;
-////                    }
-////                } else if (endAngle < Math.PI) {
-////                    while (thickness > radiusCurrent * Math.abs(Math.sin(endAngle - shift)) - radiusBackground * Math.abs(Math.sin(endAngle)) && shift < Math.PI / 4) {
-////                        shift += SHIFT_INC;
-////                    }
-////                } else if (endAngle < 3 * Math.PI / 2) {
-////                    while (thickness > radiusCurrent * Math.abs(Math.cos(endAngle - shift)) - radiusBackground * Math.abs(Math.cos(endAngle)) && shift < Math.PI / 4) {
-////                        shift += SHIFT_INC;
-////                    }
-////                } else {
-////                    while (thickness > radiusCurrent * Math.abs(Math.sin(endAngle - shift)) - radiusBackground * Math.abs(Math.sin(endAngle)) && shift < Math.PI / 4) {
-////                        shift += SHIFT_INC;
-////                    }
-////                }
-////                computedRange = range + shift;
-////                System.out.println(String.format("computeGaugeTypeExtenal => radiusBackground=%f, radiusCurrent=%f, thickness=%f, shift=%f, startAngle=%f, computedStartAngle=%f, range=%f, computedRange=%f", 
-////                        radiusBackground, radiusCurrent, thickness, Math.toDegrees(shift), Math.toDegrees(startAngle), Math.toDegrees(computedStartAngle), Math.toDegrees(range), Math.toDegrees(computedRange)));
-////                result = new CustomGaugeType(Math.toDegrees(computedRange), Math.toDegrees(computedStartAngle) + 90, gaugeTypeMarged.POST_POSITIONS);
-//            }
-//
-//            // result = gaugeTypeMarged;//new CustomGaugeType(0, 0, this.gaugeType.POST_POSITIONS);
-//        }
+        final float radiusBackground = 1 - frameThickness;
+        if (frameThickness > 0 && radiusBackground > 0.5 && radiusBackground < radiusCurrent) {
+            // in rad
+            final double startAngle = GaugeTypeUtil.toTrigoAngle(gaugeTypeMarged.ROTATION_OFFSET);
+            final double range = gaugeTypeMarged.ANGLE_RANGE;
+            final double endAngle = GaugeTypeUtil.roundTrigoValue(startAngle - range);
+            final boolean northInRange = GaugeTypeUtil.isInRange(gaugeTypeMarged, Math.PI / 2);
+            final boolean southInRange = GaugeTypeUtil.isInRange(gaugeTypeMarged, Math.PI * 3 / 2);
+            final boolean westInRange = GaugeTypeUtil.isInRange(gaugeTypeMarged, Math.PI);
+            final boolean eastInRange = GaugeTypeUtil.isInRange(gaugeTypeMarged, 0);
+
+            if (!northInRange || !southInRange || !westInRange || !eastInRange) {
+                double computedStartAngle = startAngle;
+                double shift = 0;
+                final double SHIFT_INC = Math.PI / 180;
+                final float thickness = radiusCurrent - radiusBackground;
+                if (startAngle < Math.PI / 2) {
+                    while (thickness > radiusCurrent * Math.abs(Math.sin(startAngle + shift)) - radiusBackground * Math.abs(Math.sin(startAngle)) && startAngle + shift < Math.PI / 2) {
+                        shift += SHIFT_INC;
+                    }
+                } else if (startAngle < Math.PI) {
+                    while (thickness > radiusCurrent * Math.abs(Math.cos(startAngle + shift)) - radiusBackground * Math.abs(Math.cos(startAngle)) && startAngle + shift < Math.PI) {
+                        shift += SHIFT_INC;
+                    }
+                } else if (startAngle < 3 * Math.PI / 2) {
+                    while (thickness > radiusCurrent * Math.abs(Math.sin(startAngle + shift)) - radiusBackground * Math.abs(Math.sin(startAngle)) && startAngle + shift < 3 * Math.PI / 2) {
+                        shift += SHIFT_INC;
+                    }
+                } else {
+                    while (thickness > radiusCurrent * Math.abs(Math.cos(startAngle + shift)) - radiusBackground * Math.abs(Math.cos(startAngle)) && startAngle + shift < 2 * Math.PI) {
+                        shift += SHIFT_INC;
+                    }
+                }
+                computedStartAngle = startAngle + shift;
+                double computedRange = range + shift;
+                shift = 0;
+                if (endAngle < Math.PI / 2) {
+                    while (thickness > radiusCurrent * Math.abs(Math.cos(endAngle - shift)) - radiusBackground * Math.abs(Math.cos(endAngle)) && endAngle - shift > 0) {
+                        shift += SHIFT_INC;
+                    }
+                } else if (endAngle < Math.PI) {
+                    while (thickness > radiusCurrent * Math.abs(Math.sin(endAngle - shift)) - radiusBackground * Math.abs(Math.sin(endAngle)) && endAngle - shift > Math.PI / 2) {
+                        shift += SHIFT_INC;
+                    }
+                } else if (endAngle < 3 * Math.PI / 2) {
+                    while (thickness > radiusCurrent * Math.abs(Math.cos(endAngle - shift)) - radiusBackground * Math.abs(Math.cos(endAngle)) && endAngle - shift > Math.PI) {
+                        shift += SHIFT_INC;
+                    }
+                } else {
+                    while (thickness > radiusCurrent * Math.abs(Math.sin(endAngle - shift)) - radiusBackground * Math.abs(Math.sin(endAngle)) && endAngle - shift > 3 * Math.PI / 2) {
+                        shift += SHIFT_INC;
+                    }
+                }
+                computedRange += shift;
+                result = new CustomGaugeType(Math.toDegrees(computedRange), Math.toDegrees(GaugeTypeUtil.toSteelSeriesAngle(computedStartAngle)), gaugeTypeMarged.POST_POSITIONS);
+            }
+
+        }
         return result;
     }
 
