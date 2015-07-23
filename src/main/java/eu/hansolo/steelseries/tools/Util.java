@@ -52,6 +52,7 @@ import java.util.LinkedList;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.imageio.ImageIO;
 
 
@@ -65,7 +66,6 @@ public enum Util {
     INSTANCE;
     private final float       INT_TO_FLOAT_CONST = 1f / 255f;
     private final Pattern     NUMBERS_ONLY       = Pattern.compile("^[-+]?[0-9]+[.]?[0-9]*([eE][-+]?[0-9]+)?$");
-    private final Matcher     MATCHES_NUMBERS    = NUMBERS_ONLY.matcher("");
     private final Font        STANDARD_FONT      = new Font("Verdana", 1, 24);
     private final Rectangle2D TEXT_BOUNDARY      = new Rectangle2D.Double(0, 0, 10, 10);
     private Font              digitalFont        = null;
@@ -103,7 +103,7 @@ public enum Util {
 
         // Check if need to take the fonts descent into account
         final float DESCENT;
-        MATCHES_NUMBERS.reset(TEXT);
+        final Matcher MATCHES_NUMBERS = NUMBERS_ONLY.matcher(TEXT);
         if (MATCHES_NUMBERS.matches()) {
             DESCENT = TEXT_LAYOUT.getDescent();
         } else {
