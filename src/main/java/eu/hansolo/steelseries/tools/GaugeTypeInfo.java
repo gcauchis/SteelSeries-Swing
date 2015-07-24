@@ -38,6 +38,8 @@ import java.util.Map;
 public class GaugeTypeInfo {
     private static final Map<CustomGaugeType, Map<Float ,GaugeTypeInfo>> MAPPING_GAUGE_TYPE_INFO = new HashMap<CustomGaugeType, Map<Float ,GaugeTypeInfo>>();
 
+    private final Map<Float, CustomGaugeType> mappingRatioCustomGaugeType = new HashMap<Float, CustomGaugeType>();
+
     /** The reference gauge type. */
     public final CustomGaugeType gaugeType;
     /**
@@ -187,13 +189,13 @@ public class GaugeTypeInfo {
         eastInRange = GaugeTypeUtil.isInRange(gaugeTypeExtenal, 0);
 
         // Compute ration on x
-        leftWidthRatio = GaugeTypeUtil.computeDirectionRatio(westInRange, minCos <= 0, -minCos);
-        rightWidthRatio = GaugeTypeUtil.computeDirectionRatio(eastInRange, maxCos >= 0, maxCos);
+        leftWidthRatio = GaugeTypeUtil.computeDirectionRatio(westInRange, minCos <= 0, -minCos, frameThickness);
+        rightWidthRatio = GaugeTypeUtil.computeDirectionRatio(eastInRange, maxCos >= 0, maxCos, frameThickness);
         widthRatio = (leftWidthRatio + rightWidthRatio) / 2;
 
         // Compute ration on y
-        upHeightRatio = GaugeTypeUtil.computeDirectionRatio(northInRange, maxSin >= 0, maxSin);
-        downHeightRatio = GaugeTypeUtil.computeDirectionRatio(southInRange, minSin <= 0, -minSin);
+        upHeightRatio = GaugeTypeUtil.computeDirectionRatio(northInRange, maxSin >= 0, maxSin, frameThickness);
+        downHeightRatio = GaugeTypeUtil.computeDirectionRatio(southInRange, minSin <= 0, -minSin, frameThickness);
         heightRatio = (upHeightRatio + downHeightRatio) / 2;
 
         // Compute global ratio
@@ -208,6 +210,9 @@ public class GaugeTypeInfo {
     }
 
     public CustomGaugeType computeGaugeTypeExtenal(final float radiusCurrent) {
+        if (mappingRatioCustomGaugeType.containsKey(radiusCurrent)) {
+          return mappingRatioCustomGaugeType.get(radiusCurrent);
+      }
         CustomGaugeType result = gaugeTypeMarged;
         final float radiusBackground = 1 - frameThickness;
         if (frameThickness > 0 && radiusBackground > 0.5 && radiusBackground < radiusCurrent) {
@@ -267,6 +272,7 @@ public class GaugeTypeInfo {
             }
 
         }
+        mappingRatioCustomGaugeType.put(radiusCurrent, result);
         return result;
     }
 

@@ -44,7 +44,7 @@ public final class GaugeTypeUtil
 {
     public static final double FRAME_THETA_MARGING_DEG = 8;
     public static final double FRAME_THETA_MARGING_RAD = Math.toRadians(FRAME_THETA_MARGING_DEG);
-    public static final double FRAME_MARGING = 0.12;
+    public static final double FRAME_MARGING = 0.10;
 
     private GaugeTypeUtil() {
     }
@@ -99,17 +99,17 @@ public final class GaugeTypeUtil
      * @param ratio the ratios if present in the direction.
      * @return a ratio between {@link #FRAME_MARGING FRAME_MARGING} and 1.
      */
-    protected static double computeDirectionRatio(final boolean directionsInRange, final boolean hasElementInDirections, final double ratio) {
+    protected static double computeDirectionRatio(final boolean directionsInRange, final boolean hasElementInDirections, final double ratio, final float frameThickness) {
         double result;
         if (directionsInRange) {
             //half gauge is present in the direction.
             result = 1;
         } else if (hasElementInDirections) {
             //gauge a little present in the direction
-            result = Math.max(ratio, FRAME_MARGING);
+            result = Math.max(ratio, FRAME_MARGING + frameThickness);
         } else {
             //no gauge in the directions
-            result = FRAME_MARGING;
+            result = FRAME_MARGING + frameThickness;
         }
         
         return result;
@@ -184,10 +184,14 @@ public final class GaugeTypeUtil
         if (ratio > 1 || ratio < 0.5) {
             throw new IllegalArgumentException("Ratio must be between 0.5 and 1");
         }
-        final Rectangle bound = new Rectangle((int) ((dimension.width - (dimension.width * ratio)) / 2),
-                (int) ((dimension.height - (dimension.height * ratio)) / 2),
-                (int) (dimension.width * ratio),
-                (int) (dimension.height * ratio));
+        final Point2D center = computeCenter(gaugeTypeInfo, dimension);
+        final double mainRadius = computeRadius(gaugeTypeInfo, new Rectangle(dimension), center);
+        final double radius = mainRadius * ratio;
+        final double thickness = mainRadius - radius;
+        final Rectangle bound = new Rectangle((int) (thickness),
+                (int) (thickness),
+                (int) (dimension.width - 2 * thickness),
+                (int) (dimension.height - 2 * thickness));
         Shape shape;
         switch (frameType) {
             case SQUARE:
@@ -195,8 +199,6 @@ public final class GaugeTypeUtil
                 break;
             case ROUND:
             default:
-                final Point2D center = computeCenter(gaugeTypeInfo, dimension);
-                final double radius = computeRadius(gaugeTypeInfo, new Rectangle(dimension), center) * ratio;
                 final CustomGaugeType gaugeType = gaugeTypeInfo.computeGaugeTypeExtenal((float) ratio);
                 final double range = gaugeType.ANGLE_RANGE;
 
