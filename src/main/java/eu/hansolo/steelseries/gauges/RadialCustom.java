@@ -340,8 +340,8 @@ public class RadialCustom extends AbstractRadial {
         }
         thresholdImage = create_THRESHOLD_Image(GAUGE_WIDTH);
 
-        measuredValueOffset.setLocation(radius * gaugeTypeInfo.leftWidthRatio - pointerWidth * MeasuredValueImageFactory.RATIO_WIDTH / 2,
-                                        GAUGE_HEIGHT * (1 - tickMarkScale * 1.07));
+        measuredValueOffset.setLocation(pointerImageOrigin.getX() + pointerWidth * (0.5 - MeasuredValueImageFactory.RATIO_WIDTH / 2),
+                pointerImageOrigin.getY() + radius * (1 - tickMarkScale * 1.07));
         initMaxMeasured(pointerWidth);
 
         // Calc area of measured values
@@ -380,14 +380,9 @@ public class RadialCustom extends AbstractRadial {
      * Compute scales.<b>
      */
     private void computeScales() {
-//        final GaugeTypeInfo gaugeTypeInfo = getGaugeTypeInfo();
         float frameThikness = this.frameThikness;
         if (isFrameVisible()) {
-//            if (gaugeTypeInfo.northInRange) {
-                backgroundScale = outerFrameScale - frameThikness;
-//            } else {
-//                backgroundScale = outerFrameScale - frameThikness / 2;
-//            }
+            backgroundScale = outerFrameScale - frameThikness;
             mainFrameScale = outerFrameScale - 0.02f;
             innerFrameScale = backgroundScale + 0.02f;
             innerFrameGlossy1 = innerFrameScale * 1.01f;
