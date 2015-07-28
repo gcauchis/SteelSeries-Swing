@@ -140,7 +140,7 @@ public class GaugeTypeInfo {
      * @param gaugeType the reference gauge type.
      * @return an instance of Gauge Type Info that match to the given gauge type.
      */
-    public static GaugeTypeInfo getGaugeTypeInfo(final CustomGaugeType gaugeType, final float frameThickness) {
+    public static synchronized GaugeTypeInfo getGaugeTypeInfo(final CustomGaugeType gaugeType, final float frameThickness) {
         if (!MAPPING_GAUGE_TYPE_INFO.containsKey(gaugeType)) {
             MAPPING_GAUGE_TYPE_INFO.put(gaugeType, new HashMap<Float, GaugeTypeInfo>());
         }

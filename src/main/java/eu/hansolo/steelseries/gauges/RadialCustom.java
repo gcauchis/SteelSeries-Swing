@@ -87,7 +87,13 @@ import java.util.Random;
 public class RadialCustom extends AbstractRadial {
     // <editor-fold defaultstate="collapsed" desc="Variable declarations">
     protected static final int BASE = 10;
+    /** The background image. */
     private BufferedImage bImage;
+    /** The background decoration image. */
+    private BufferedImage bdImage;
+    /** The background information image. */
+    private BufferedImage biImage;
+    /** The foreground image. */
     private BufferedImage fImage;
     private BufferedImage glowImageOff;
     private BufferedImage glowImageOn;
@@ -169,13 +175,8 @@ public class RadialCustom extends AbstractRadial {
         if (getGaugeType() == GaugeType.CUSTOM) {
             GaugeTypeUtil.computeCenter(getGaugeTypeInfo(), GAUGE_DIM, CENTER);
         }
-        final float widthRadiusFactor = getWidthRadiusFactor();
-//        final float tickMarkRadiusFactor = (float) (widthRadiusFactor * tickMarkScale);
-//        System.out.println(String.format("tickMarkRadiusFactor: %f, widthRadiusFactor: %f, backgroundScale: %f, tickMarkScale: %f, frameThikness: %f, GAUGE_WIDTH: %d, GAUGE_WIDTH * widthRadiusFactor: %f, GAUGE_WIDTH * tickMarkRadiusFactor: %f",
-//                tickMarkRadiusFactor, widthRadiusFactor, backgroundScale, tickMarkScale, frameThikness, GAUGE_WIDTH, GAUGE_WIDTH * widthRadiusFactor, GAUGE_WIDTH * tickMarkRadiusFactor));
         final double radius = GAUGE_WIDTH * getWidthRadiusFactor();
         final int pointerWidth = (int) (radius * 2);
-        final float tickMarkRadiusFactor = (float) (widthRadiusFactor * tickMarkScale);
         final GaugeTypeInfo gaugeTypeInfo = getGaugeTypeInfo();
         
         if (GAUGE_WIDTH <= 1 || GAUGE_HEIGHT <= 1) {
@@ -197,25 +198,11 @@ public class RadialCustom extends AbstractRadial {
 
             setLcdInfoFont(getModel().getStandardInfoFont().deriveFont(0.15f * GAUGE_WIDTH * 0.15f));
         }
-        // Create Background Image
-        if (bImage != null) {
-            bImage.flush();
-        }
-        bImage = UTIL.createImage(GAUGE_WIDTH, GAUGE_HEIGHT, Transparency.TRANSLUCENT);
+        
+        initBackground(WIDTH, HEIGHT);
 
         // Create Foreground Image
-        if (fImage != null) {
-            fImage.flush();
-        }
-        fImage = UTIL.createImage(GAUGE_WIDTH, GAUGE_HEIGHT, Transparency.TRANSLUCENT);
-
-        if (isFrameVisible()) {
-            create_FRAME_Image(GAUGE_WIDTH, GAUGE_HEIGHT, bImage);
-        }
-
-        if (isBackgroundVisible()) {
-            create_BACKGROUND_Image(GAUGE_WIDTH, GAUGE_HEIGHT, "", "", bImage);
-        }
+         fImage = UTIL.clearOrCreateImage(fImage, GAUGE_WIDTH, GAUGE_HEIGHT, Transparency.TRANSLUCENT);
 
         if (isGlowVisible()) {
             if (glowImageOff != null) {
@@ -234,101 +221,6 @@ public class RadialCustom extends AbstractRadial {
             createPostsImage(GAUGE_WIDTH, fImage, getModel().getPostPosition());
         } else {
             createPostsImage(GAUGE_WIDTH, fImage, new PostPosition[]{PostPosition.CENTER});
-        }
-
-        TRACK_OFFSET.setLocation(0, 0);
-
-        if (isTrackVisible()) {
-            create_TRACK_Image(GAUGE_WIDTH, getFreeAreaAngle(),
-                    getTickmarkOffset(),
-                    getMinValue(),
-                    getMaxValue(),
-                    getAngleStep(),
-                    getTrackStart(),
-                    getTrackSection(),
-                    getTrackStop(),
-                    getTrackStartColor(),
-                    getTrackSectionColor(),
-                    getTrackStopColor(),
-                    tickMarkRadiusFactor,
-                    CENTER,
-                    getTickmarkDirection(),
-                    TRACK_OFFSET,
-                    bImage);
-        }
-
-        // Create areas if not empty
-        if (!getAreas().isEmpty()) {
-            // Create the sections 3d effect gradient overlay
-            if (area3DEffectVisible) {
-                area3DEffect = createArea3DEffectGradient(GAUGE_WIDTH, widthRadiusFactor);
-            }
-            createAreas(bImage);
-        }
-
-        // Create sections if not empty
-        if (!getSections().isEmpty()) {
-            // Create the sections 3d effect gradient overlay
-            if (section3DEffectVisible) {
-                section3DEffect = createSection3DEffectGradient(GAUGE_WIDTH, widthRadiusFactor);
-            }
-            createSections(bImage);
-        }
-
-        TICKMARK_FACTORY.create_RADIAL_TICKMARKS_Image(GAUGE_WIDTH,
-                                                       GAUGE_HEIGHT,
-                                                       getModel().getNiceMinValue(),
-                                                       getModel().getNiceMaxValue(),
-                                                       getModel().getMaxNoOfMinorTicks(),
-                                                       getModel().getMaxNoOfMajorTicks(),
-                                                       getModel().getMinorTickSpacing(),
-                                                       getModel().getMajorTickSpacing(),
-                                                       getGaugeType(),
-                                                       getCustomGaugeType(),
-                                                       getMinorTickmarkType(),
-                                                       getMajorTickmarkType(),
-                                                       isTickmarksVisible(),
-                                                       isTicklabelsVisible(),
-                                                       getModel().isMinorTickmarksVisible(),
-                                                       getModel().isMajorTickmarksVisible(),
-                                                       getLabelNumberFormat(),
-                                                       isTickmarkSectionsVisible(),
-                                                       getBackgroundColor(),
-                                                       getTickmarkColor(),
-                                                       isTickmarkColorFromThemeEnabled(),
-                                                       getTickmarkSections(),
-                                                       isSectionTickmarksOnly(),
-                                                       getSections(),
-                                                       tickMarkRadiusFactor,
-                                                       tickMarkLabelDistanceFactor,
-                                                       CENTER,
-                                                       new Point2D.Double(0, 0),
-                                                       Orientation.NORTH,
-                                                       getModel().getTicklabelOrientation(),
-                                                       getModel().isNiceScale(),
-                                                       getModel().isLogScale(),
-                                                       bImage);
-
-        create_TITLE_Image(GAUGE_WIDTH, getTitle(), getUnitString(), bImage);
-
-        if (isLcdVisible()) {
-            if (isLcdBackgroundVisible()) {
-            createLcdImage(new Rectangle2D.Double(((getGaugeBounds().width - GAUGE_WIDTH * getModel().getLcdFactors().getX()) / 2.0),
-                             (getGaugeBounds().height * getModel().getLcdFactors().getY()),
-                             (GAUGE_WIDTH * getModel().getLcdFactors().getWidth()),
-                             (GAUGE_WIDTH * getModel().getLcdFactors().getHeight())),
-                             getLcdColor(),
-                             getCustomLcdBackground(),
-                             bImage);
-            }
-            LCD.setRect(((getGaugeBounds().width - GAUGE_WIDTH * getModel().getLcdFactors().getX()) / 2.0), (getGaugeBounds().height * getModel().getLcdFactors().getY()), GAUGE_WIDTH * getModel().getLcdFactors().getWidth(), GAUGE_WIDTH * getModel().getLcdFactors().getHeight());
-            lcdArea = new Area(LCD);
-
-            // Create the lcd threshold indicator image
-            if (lcdThresholdImage != null) {
-                lcdThresholdImage.flush();
-            }
-            lcdThresholdImage = create_LCD_THRESHOLD_Image((int) (LCD.getHeight() * 0.2045454545), (int) (LCD.getHeight() * 0.2045454545), getLcdColor().TEXT_COLOR);
         }
 
         pointerImageOrigin.setLocation(0 - (1 - gaugeTypeInfo.leftWidthRatio) * pointerWidth / 2,
@@ -374,6 +266,135 @@ public class RadialCustom extends AbstractRadial {
         setCurrentLedImage(getLedImageOff());
 
         return this;
+    }
+    
+    protected void initBackground(final int WIDTH, final int HEIGHT)
+    {
+        final int GAUGE_WIDTH = isFrameVisible() ? WIDTH : getGaugeBounds().width;
+        final int GAUGE_HEIGHT = isFrameVisible() ? HEIGHT : getGaugeBounds().height;
+        
+        final float widthRadiusFactor = getWidthRadiusFactor();
+        final float tickMarkRadiusFactor = (float) (widthRadiusFactor * tickMarkScale);
+        
+        // Create Background Image
+        bImage = UTIL.clearOrCreateImage(bImage, GAUGE_WIDTH, GAUGE_HEIGHT, Transparency.TRANSLUCENT);
+        
+        if (isFrameVisible()) {
+            create_FRAME_Image(GAUGE_WIDTH, GAUGE_HEIGHT, bImage);
+        }
+
+        if (isBackgroundVisible()) {
+            create_BACKGROUND_Image(GAUGE_WIDTH, GAUGE_HEIGHT, "", "", bImage);
+        }
+        
+        initBackgroundDecorationImage(WIDTH, HEIGHT);
+
+        biImage = UTIL.clearOrCreateImage(biImage, GAUGE_WIDTH, GAUGE_HEIGHT, Transparency.TRANSLUCENT);
+        TICKMARK_FACTORY.create_RADIAL_TICKMARKS_Image(GAUGE_WIDTH,
+                                                       GAUGE_HEIGHT,
+                                                       getModel().getNiceMinValue(),
+                                                       getModel().getNiceMaxValue(),
+                                                       getModel().getMaxNoOfMinorTicks(),
+                                                       getModel().getMaxNoOfMajorTicks(),
+                                                       getModel().getMinorTickSpacing(),
+                                                       getModel().getMajorTickSpacing(),
+                                                       getGaugeType(),
+                                                       getCustomGaugeType(),
+                                                       getMinorTickmarkType(),
+                                                       getMajorTickmarkType(),
+                                                       isTickmarksVisible(),
+                                                       isTicklabelsVisible(),
+                                                       getModel().isMinorTickmarksVisible(),
+                                                       getModel().isMajorTickmarksVisible(),
+                                                       getLabelNumberFormat(),
+                                                       isTickmarkSectionsVisible(),
+                                                       getBackgroundColor(),
+                                                       getTickmarkColor(),
+                                                       isTickmarkColorFromThemeEnabled(),
+                                                       getTickmarkSections(),
+                                                       isSectionTickmarksOnly(),
+                                                       getSections(),
+                                                       tickMarkRadiusFactor,
+                                                       tickMarkLabelDistanceFactor,
+                                                       CENTER,
+                                                       new Point2D.Double(0, 0),
+                                                       Orientation.NORTH,
+                                                       getModel().getTicklabelOrientation(),
+                                                       getModel().isNiceScale(),
+                                                       getModel().isLogScale(),
+                                                       biImage);
+
+        create_TITLE_Image(GAUGE_WIDTH, getTitle(), getUnitString(), biImage);
+
+        if (isLcdVisible()) {
+            if (isLcdBackgroundVisible()) {
+            createLcdImage(new Rectangle2D.Double(((getGaugeBounds().width - GAUGE_WIDTH * getModel().getLcdFactors().getX()) / 2.0),
+                             (getGaugeBounds().height * getModel().getLcdFactors().getY()),
+                             (GAUGE_WIDTH * getModel().getLcdFactors().getWidth()),
+                             (GAUGE_WIDTH * getModel().getLcdFactors().getHeight())),
+                             getLcdColor(),
+                             getCustomLcdBackground(),
+                             biImage);
+            }
+            LCD.setRect(((getGaugeBounds().width - GAUGE_WIDTH * getModel().getLcdFactors().getX()) / 2.0), (getGaugeBounds().height * getModel().getLcdFactors().getY()), GAUGE_WIDTH * getModel().getLcdFactors().getWidth(), GAUGE_WIDTH * getModel().getLcdFactors().getHeight());
+            lcdArea = new Area(LCD);
+
+            // Create the lcd threshold indicator image
+            if (lcdThresholdImage != null) {
+                lcdThresholdImage.flush();
+            }
+            lcdThresholdImage = create_LCD_THRESHOLD_Image((int) (LCD.getHeight() * 0.2045454545), (int) (LCD.getHeight() * 0.2045454545), getLcdColor().TEXT_COLOR);
+        }
+    }
+    
+    protected void initBackgroundDecorationImage(final int WIDTH, final int HEIGHT)
+    {
+        final int GAUGE_WIDTH = isFrameVisible() ? WIDTH : getGaugeBounds().width;
+        final int GAUGE_HEIGHT = isFrameVisible() ? HEIGHT : getGaugeBounds().height;
+        
+        final float widthRadiusFactor = getWidthRadiusFactor();
+        final float tickMarkRadiusFactor = (float) (widthRadiusFactor * tickMarkScale);
+        
+        bdImage = UTIL.clearOrCreateImage(bdImage, GAUGE_WIDTH, GAUGE_HEIGHT, Transparency.TRANSLUCENT);
+        
+        TRACK_OFFSET.setLocation(0, 0);
+
+        if (isTrackVisible()) {
+            create_TRACK_Image(GAUGE_WIDTH, getFreeAreaAngle(),
+                    getTickmarkOffset(),
+                    getMinValue(),
+                    getMaxValue(),
+                    getAngleStep(),
+                    getTrackStart(),
+                    getTrackSection(),
+                    getTrackStop(),
+                    getTrackStartColor(),
+                    getTrackSectionColor(),
+                    getTrackStopColor(),
+                    tickMarkRadiusFactor,
+                    CENTER,
+                    getTickmarkDirection(),
+                    TRACK_OFFSET,
+                    bdImage);
+        }
+
+        // Create areas if not empty
+        if (!getAreas().isEmpty()) {
+            // Create the sections 3d effect gradient overlay
+            if (area3DEffectVisible) {
+                area3DEffect = createArea3DEffectGradient(GAUGE_WIDTH, widthRadiusFactor);
+            }
+            createAreas(bdImage);
+        }
+
+        // Create sections if not empty
+        if (!getSections().isEmpty()) {
+            // Create the sections 3d effect gradient overlay
+            if (section3DEffectVisible) {
+                section3DEffect = createSection3DEffectGradient(GAUGE_WIDTH, widthRadiusFactor);
+            }
+            createSections(bdImage);
+        }
     }
 
     /**
@@ -433,8 +454,8 @@ public class RadialCustom extends AbstractRadial {
 
         // Draw center knob
         if (postPositionList.contains(PostPosition.CENTER) || postPositionList.contains(PostPosition.LOWER_CENTER)) {
-            AffineTransform beforeCenterTranform = G2.getTransform();
-            AffineTransform centerTranform = new AffineTransform();
+            final AffineTransform beforeCenterTranform = G2.getTransform();
+            final AffineTransform centerTranform = new AffineTransform();
             centerTranform.scale(WIDTH / (double) IMAGE_WIDTH, WIDTH / (double) IMAGE_HEIGHT);
             centerTranform.translate(CENTER.getX() - WIDTH * 0.5, CENTER.getY() - WIDTH * 0.5);
             G2.setTransform(centerTranform);
@@ -1788,6 +1809,8 @@ public class RadialCustom extends AbstractRadial {
 
         // Draw combined background image
         G2.drawImage(bImage, 0, 0, null);
+        G2.drawImage(bdImage, 0, 0, null);
+        G2.drawImage(biImage, 0, 0, null);
 
         // Draw an Arc2d object that will visualize the range of measured values
         if (isRangeOfMeasuredValuesVisible()) {

@@ -694,6 +694,30 @@ public enum Util {
         }
         return gfxConf.createCompatibleImage(WIDTH, HEIGHT, TRANSPARENCY);
     }
+    
+    /**
+     * Returns a compatible image of the given size and transparency if the image is null. If the image is not null it will keep it size and be clear.
+     *
+     * @param image the image
+     * @param WIDTH the width
+     * @param HEIGHT the height
+     * @param TRANSPARENCY the transparency
+     * @return a compatible image of the given size and transparency
+     */
+    public BufferedImage clearOrCreateImage(BufferedImage image, final int WIDTH, final int HEIGHT, final int TRANSPARENCY) {
+        if (image == null) {
+            image = createImage(WIDTH, HEIGHT, TRANSPARENCY);
+        } else {
+            image.flush();
+            image = createImage(WIDTH, HEIGHT, TRANSPARENCY);
+            //TODO: Clear
+//            Graphics2D g = (Graphics2D) image.getGraphics();
+//            g.setBackground(new Color(255, 255, 255, 0));
+//            g.clearRect(0, 0, WIDTH, HEIGHT);
+//            g.dispose();
+        }
+        return image;
+    }
 
     /**
      * Returns the given COLOR with the given ALPHA transparency
