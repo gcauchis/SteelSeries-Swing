@@ -218,9 +218,9 @@ public class RadialCustom extends AbstractRadial {
         }
 
         if (getPostsVisible()) {
-            createPostsImage(GAUGE_WIDTH, fImage, getModel().getPostPosition());
+            createPostsImage(GAUGE_WIDTH, GAUGE_HEIGHT, fImage, getModel().getPostPosition());
         } else {
-            createPostsImage(GAUGE_WIDTH, fImage, new PostPosition[]{PostPosition.CENTER});
+            createPostsImage(GAUGE_WIDTH, GAUGE_HEIGHT, fImage, new PostPosition[]{PostPosition.CENTER});
         }
 
         pointerImageOrigin.setLocation(0 - (1 - gaugeTypeInfo.leftWidthRatio) * pointerWidth / 2,
@@ -434,13 +434,13 @@ public class RadialCustom extends AbstractRadial {
      * @param image
      * @return the post image that is used
      */
-    protected BufferedImage createPostsImage(final int WIDTH, BufferedImage image, final PostPosition... POSITIONS) {
+    protected BufferedImage createPostsImage(final int WIDTH, final int HEIGHT, BufferedImage image, final PostPosition... POSITIONS) {
         if (WIDTH <= 0) {
             return UTIL.createImage(1, 1, Transparency.TRANSLUCENT);
         }
 
         if (image == null) {
-            image = UTIL.createImage(WIDTH, WIDTH, Transparency.TRANSLUCENT);
+            image = UTIL.createImage(WIDTH, HEIGHT, Transparency.TRANSLUCENT);
         }
         final Graphics2D G2 = image.createGraphics();
         G2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -456,13 +456,14 @@ public class RadialCustom extends AbstractRadial {
         if (postPositionList.contains(PostPosition.CENTER) || postPositionList.contains(PostPosition.LOWER_CENTER)) {
             final AffineTransform beforeCenterTranform = G2.getTransform();
             final AffineTransform centerTranform = new AffineTransform();
-            centerTranform.scale(WIDTH / (double) IMAGE_WIDTH, WIDTH / (double) IMAGE_HEIGHT);
-            centerTranform.translate(CENTER.getX() - WIDTH * 0.5, CENTER.getY() - WIDTH * 0.5);
+            double vx = (CENTER.getX() - IMAGE_WIDTH / 2d);
+            double vy = (CENTER.getY()  - IMAGE_WIDTH / 2d);
+            centerTranform.translate(vx, vy);
             G2.setTransform(centerTranform);
             switch (getKnobType()) {
                 case SMALL_STD_KNOB:
 
-                    final Ellipse2D CENTER_KNOB_FRAME = new Ellipse2D.Double(IMAGE_WIDTH * 0.4579439163208008, IMAGE_HEIGHT * 0.4579439163208008, IMAGE_WIDTH * 0.08411216735839844, IMAGE_HEIGHT * 0.08411216735839844);
+                    final Ellipse2D CENTER_KNOB_FRAME = new Ellipse2D.Double(IMAGE_WIDTH * 0.4579439163208008, IMAGE_WIDTH * 0.4579439163208008, IMAGE_WIDTH * 0.08411216735839844, IMAGE_WIDTH * 0.08411216735839844);
                     final Point2D CENTER_KNOB_FRAME_START = new Point2D.Double(0, CENTER_KNOB_FRAME.getBounds2D().getMinY());
                     final Point2D CENTER_KNOB_FRAME_STOP = new Point2D.Double(0, CENTER_KNOB_FRAME.getBounds2D().getMaxY());
                     final float[] CENTER_KNOB_FRAME_FRACTIONS = {
@@ -480,7 +481,7 @@ public class RadialCustom extends AbstractRadial {
                     G2.setPaint(CENTER_KNOB_FRAME_GRADIENT);
                     G2.fill(CENTER_KNOB_FRAME);
 
-                    final Ellipse2D CENTER_KNOB_MAIN = new Ellipse2D.Double(IMAGE_WIDTH * 0.4672897160053253, IMAGE_HEIGHT * 0.4672897160053253, IMAGE_WIDTH * 0.06542053818702698, IMAGE_HEIGHT * 0.06542053818702698);
+                    final Ellipse2D CENTER_KNOB_MAIN = new Ellipse2D.Double(IMAGE_WIDTH * 0.4672897160053253, IMAGE_WIDTH * 0.4672897160053253, IMAGE_WIDTH * 0.06542053818702698, IMAGE_WIDTH * 0.06542053818702698);
                     final Point2D CENTER_KNOB_MAIN_START = new Point2D.Double(0, CENTER_KNOB_MAIN.getBounds2D().getMinY());
                     final Point2D CENTER_KNOB_MAIN_STOP = new Point2D.Double(0, CENTER_KNOB_MAIN.getBounds2D().getMaxY());
                     final float[] CENTER_KNOB_MAIN_FRACTIONS = {
@@ -522,8 +523,8 @@ public class RadialCustom extends AbstractRadial {
                     G2.setPaint(CENTER_KNOB_MAIN_GRADIENT);
                     G2.fill(CENTER_KNOB_MAIN);
 
-                    final Ellipse2D CENTER_KNOB_INNERSHADOW = new Ellipse2D.Double(IMAGE_WIDTH * 0.4672897160053253, IMAGE_HEIGHT * 0.4672897160053253, IMAGE_WIDTH * 0.06542053818702698, IMAGE_HEIGHT * 0.06542053818702698);
-                    final Point2D CENTER_KNOB_INNERSHADOW_CENTER = new Point2D.Double((0.4953271028037383 * IMAGE_WIDTH), (0.49065420560747663 * IMAGE_HEIGHT));
+                    final Ellipse2D CENTER_KNOB_INNERSHADOW = new Ellipse2D.Double(IMAGE_WIDTH * 0.4672897160053253, IMAGE_WIDTH * 0.4672897160053253, IMAGE_WIDTH * 0.06542053818702698, IMAGE_WIDTH * 0.06542053818702698);
+                    final Point2D CENTER_KNOB_INNERSHADOW_CENTER = new Point2D.Double((0.4953271028037383 * IMAGE_WIDTH), (0.49065420560747663 * IMAGE_WIDTH));
                     final float[] CENTER_KNOB_INNERSHADOW_FRACTIONS = {
                         0.0f,
                         0.75f,
@@ -542,7 +543,7 @@ public class RadialCustom extends AbstractRadial {
                     break;
 
                 case BIG_STD_KNOB:
-                    final Ellipse2D BIGCENTER_BACKGROUNDFRAME = new Ellipse2D.Double(IMAGE_WIDTH * 0.4392523467540741, IMAGE_HEIGHT * 0.4392523467540741, IMAGE_WIDTH * 0.1214953362941742, IMAGE_HEIGHT * 0.1214953362941742);
+                    final Ellipse2D BIGCENTER_BACKGROUNDFRAME = new Ellipse2D.Double(IMAGE_WIDTH * 0.4392523467540741, IMAGE_WIDTH * 0.4392523467540741, IMAGE_WIDTH * 0.1214953362941742, IMAGE_WIDTH * 0.1214953362941742);
                     final Point2D BIGCENTER_BACKGROUNDFRAME_START = new Point2D.Double(0, BIGCENTER_BACKGROUNDFRAME.getBounds2D().getMinY());
                     final Point2D BIGCENTER_BACKGROUNDFRAME_STOP = new Point2D.Double(0, BIGCENTER_BACKGROUNDFRAME.getBounds2D().getMaxY());
                     final float[] BIGCENTER_BACKGROUNDFRAME_FRACTIONS = {
@@ -580,7 +581,7 @@ public class RadialCustom extends AbstractRadial {
                     G2.setPaint(BIGCENTER_BACKGROUNDFRAME_GRADIENT);
                     G2.fill(BIGCENTER_BACKGROUNDFRAME);
 
-                    final Ellipse2D BIGCENTER_BACKGROUND = new Ellipse2D.Double(IMAGE_WIDTH * 0.44392523169517517, IMAGE_HEIGHT * 0.44392523169517517, IMAGE_WIDTH * 0.11214950680732727, IMAGE_HEIGHT * 0.11214950680732727);
+                    final Ellipse2D BIGCENTER_BACKGROUND = new Ellipse2D.Double(IMAGE_WIDTH * 0.44392523169517517, IMAGE_WIDTH * 0.44392523169517517, IMAGE_WIDTH * 0.11214950680732727, IMAGE_WIDTH * 0.11214950680732727);
                     final Point2D BIGCENTER_BACKGROUND_START = new Point2D.Double(0, BIGCENTER_BACKGROUND.getBounds2D().getMinY());
                     final Point2D BIGCENTER_BACKGROUND_STOP = new Point2D.Double(0, BIGCENTER_BACKGROUND.getBounds2D().getMaxY());
                     final float[] BIGCENTER_BACKGROUND_FRACTIONS = {
@@ -618,7 +619,7 @@ public class RadialCustom extends AbstractRadial {
                     G2.setPaint(BIGCENTER_BACKGROUND_GRADIENT);
                     G2.fill(BIGCENTER_BACKGROUND);
 
-                    final Ellipse2D BIGCENTER_FOREGROUNDFRAME = new Ellipse2D.Double(IMAGE_WIDTH * 0.4532710313796997, IMAGE_HEIGHT * 0.4532710313796997, IMAGE_WIDTH * 0.09345793724060059, IMAGE_HEIGHT * 0.09345793724060059);
+                    final Ellipse2D BIGCENTER_FOREGROUNDFRAME = new Ellipse2D.Double(IMAGE_WIDTH * 0.4532710313796997, IMAGE_WIDTH * 0.4532710313796997, IMAGE_WIDTH * 0.09345793724060059, IMAGE_WIDTH * 0.09345793724060059);
                     final Point2D BIGCENTER_FOREGROUNDFRAME_START = new Point2D.Double(0, BIGCENTER_FOREGROUNDFRAME.getBounds2D().getMinY());
                     final Point2D BIGCENTER_FOREGROUNDFRAME_STOP = new Point2D.Double(0, BIGCENTER_FOREGROUNDFRAME.getBounds2D().getMaxY());
                     final float[] BIGCENTER_FOREGROUNDFRAME_FRACTIONS = {
@@ -660,7 +661,7 @@ public class RadialCustom extends AbstractRadial {
                     G2.setPaint(BIGCENTER_FOREGROUNDFRAME_GRADIENT);
                     G2.fill(BIGCENTER_FOREGROUNDFRAME);
 
-                    final Ellipse2D BIGCENTER_FOREGROUND = new Ellipse2D.Double(IMAGE_WIDTH * 0.4579439163208008, IMAGE_HEIGHT * 0.4579439163208008, IMAGE_WIDTH * 0.08411216735839844, IMAGE_HEIGHT * 0.08411216735839844);
+                    final Ellipse2D BIGCENTER_FOREGROUND = new Ellipse2D.Double(IMAGE_WIDTH * 0.4579439163208008, IMAGE_WIDTH * 0.4579439163208008, IMAGE_WIDTH * 0.08411216735839844, IMAGE_WIDTH * 0.08411216735839844);
                     final Point2D BIGCENTER_FOREGROUND_START = new Point2D.Double(0, BIGCENTER_FOREGROUND.getBounds2D().getMinY());
                     final Point2D BIGCENTER_FOREGROUND_STOP = new Point2D.Double(0, BIGCENTER_FOREGROUND.getBounds2D().getMaxY());
                     final float[] BIGCENTER_FOREGROUND_FRACTIONS = {
@@ -712,9 +713,9 @@ public class RadialCustom extends AbstractRadial {
                     break;
 
                 case BIG_CHROME_KNOB:
-                    final Ellipse2D CHROMEKNOB_BACKFRAME = new Ellipse2D.Double(IMAGE_WIDTH * 0.42990654706954956, IMAGE_HEIGHT * 0.42990654706954956, IMAGE_WIDTH * 0.14018690586090088, IMAGE_HEIGHT * 0.14018690586090088);
-                    final Point2D CHROMEKNOB_BACKFRAME_START = new Point2D.Double((0.46261682242990654 * IMAGE_WIDTH), (0.4392523364485981 * IMAGE_HEIGHT));
-                    final Point2D CHROMEKNOB_BACKFRAME_STOP = new Point2D.Double(((0.46261682242990654 + 0.0718114890783315) * IMAGE_WIDTH), ((0.4392523364485981 + 0.1149224055539082) * IMAGE_HEIGHT));
+                    final Ellipse2D CHROMEKNOB_BACKFRAME = new Ellipse2D.Double(IMAGE_WIDTH * 0.42990654706954956, IMAGE_WIDTH * 0.42990654706954956, IMAGE_WIDTH * 0.14018690586090088, IMAGE_WIDTH * 0.14018690586090088);
+                    final Point2D CHROMEKNOB_BACKFRAME_START = new Point2D.Double((0.46261682242990654 * IMAGE_WIDTH), (0.4392523364485981 * IMAGE_WIDTH));
+                    final Point2D CHROMEKNOB_BACKFRAME_STOP = new Point2D.Double(((0.46261682242990654 + 0.0718114890783315) * IMAGE_WIDTH), ((0.4392523364485981 + 0.1149224055539082) * IMAGE_WIDTH));
                     final float[] CHROMEKNOB_BACKFRAME_FRACTIONS = {
                         0.0f,
                         1.0f
@@ -728,7 +729,7 @@ public class RadialCustom extends AbstractRadial {
                     G2.setPaint(CHROMEKNOB_BACKFRAME_GRADIENT);
                     G2.fill(CHROMEKNOB_BACKFRAME);
 
-                    final Ellipse2D CHROMEKNOB_BACK = new Ellipse2D.Double(IMAGE_WIDTH * 0.43457943201065063, IMAGE_HEIGHT * 0.43457943201065063, IMAGE_WIDTH * 0.13084113597869873, IMAGE_HEIGHT * 0.13084113597869873);
+                    final Ellipse2D CHROMEKNOB_BACK = new Ellipse2D.Double(IMAGE_WIDTH * 0.43457943201065063, IMAGE_WIDTH * 0.43457943201065063, IMAGE_WIDTH * 0.13084113597869873, IMAGE_WIDTH * 0.13084113597869873);
                     final Point2D CHROMEKNOB_BACK_CENTER = new Point2D.Double(CHROMEKNOB_BACK.getCenterX(), CHROMEKNOB_BACK.getCenterY());
                     final float[] CHROMEKNOB_BACK_FRACTIONS = {
                         0.0f,
@@ -772,9 +773,9 @@ public class RadialCustom extends AbstractRadial {
                     G2.setPaint(CHROMEKNOB_BACK_GRADIENT);
                     G2.fill(CHROMEKNOB_BACK);
 
-                    final Ellipse2D CHROMEKNOB_FOREFRAME = new Ellipse2D.Double(IMAGE_WIDTH * 0.4672897160053253, IMAGE_HEIGHT * 0.4672897160053253, IMAGE_WIDTH * 0.06542053818702698, IMAGE_HEIGHT * 0.06542053818702698);
-                    final Point2D CHROMEKNOB_FOREFRAME_START = new Point2D.Double((0.48130841121495327 * IMAGE_WIDTH), (0.4719626168224299 * IMAGE_HEIGHT));
-                    final Point2D CHROMEKNOB_FOREFRAME_STOP = new Point2D.Double(((0.48130841121495327 + 0.033969662360372466) * IMAGE_WIDTH), ((0.4719626168224299 + 0.05036209552904459) * IMAGE_HEIGHT));
+                    final Ellipse2D CHROMEKNOB_FOREFRAME = new Ellipse2D.Double(IMAGE_WIDTH * 0.4672897160053253, IMAGE_WIDTH * 0.4672897160053253, IMAGE_WIDTH * 0.06542053818702698, IMAGE_WIDTH * 0.06542053818702698);
+                    final Point2D CHROMEKNOB_FOREFRAME_START = new Point2D.Double((0.48130841121495327 * IMAGE_WIDTH), (0.4719626168224299 * IMAGE_WIDTH));
+                    final Point2D CHROMEKNOB_FOREFRAME_STOP = new Point2D.Double(((0.48130841121495327 + 0.033969662360372466) * IMAGE_WIDTH), ((0.4719626168224299 + 0.05036209552904459) * IMAGE_WIDTH));
                     final float[] CHROMEKNOB_FOREFRAME_FRACTIONS = {
                         0.0f,
                         1.0f
@@ -788,9 +789,9 @@ public class RadialCustom extends AbstractRadial {
                     G2.setPaint(CHROMEKNOB_FOREFRAME_GRADIENT);
                     G2.fill(CHROMEKNOB_FOREFRAME);
 
-                    final Ellipse2D CHROMEKNOB_FORE = new Ellipse2D.Double(IMAGE_WIDTH * 0.4719626307487488, IMAGE_HEIGHT * 0.4719626307487488, IMAGE_WIDTH * 0.05607473850250244, IMAGE_HEIGHT * 0.05607473850250244);
-                    final Point2D CHROMEKNOB_FORE_START = new Point2D.Double((0.48130841121495327 * IMAGE_WIDTH), (0.4766355140186916 * IMAGE_HEIGHT));
-                    final Point2D CHROMEKNOB_FORE_STOP = new Point2D.Double(((0.48130841121495327 + 0.03135661140957459) * IMAGE_WIDTH), ((0.4766355140186916 + 0.04648808818065655) * IMAGE_HEIGHT));
+                    final Ellipse2D CHROMEKNOB_FORE = new Ellipse2D.Double(IMAGE_WIDTH * 0.4719626307487488, IMAGE_WIDTH * 0.4719626307487488, IMAGE_WIDTH * 0.05607473850250244, IMAGE_WIDTH * 0.05607473850250244);
+                    final Point2D CHROMEKNOB_FORE_START = new Point2D.Double((0.48130841121495327 * IMAGE_WIDTH), (0.4766355140186916 * IMAGE_WIDTH));
+                    final Point2D CHROMEKNOB_FORE_STOP = new Point2D.Double(((0.48130841121495327 + 0.03135661140957459) * IMAGE_WIDTH), ((0.4766355140186916 + 0.04648808818065655) * IMAGE_WIDTH));
                     final float[] CHROMEKNOB_FORE_FRACTIONS = {
                         0.0f,
                         1.0f
@@ -806,7 +807,7 @@ public class RadialCustom extends AbstractRadial {
                     break;
 
                 case METAL_KNOB:
-                    final Ellipse2D METALKNOB_FRAME = new Ellipse2D.Double(IMAGE_WIDTH * 0.4579439163208008, IMAGE_HEIGHT * 0.4579439163208008, IMAGE_WIDTH * 0.08411216735839844, IMAGE_HEIGHT * 0.08411216735839844);
+                    final Ellipse2D METALKNOB_FRAME = new Ellipse2D.Double(IMAGE_WIDTH * 0.4579439163208008, IMAGE_WIDTH * 0.4579439163208008, IMAGE_WIDTH * 0.08411216735839844, IMAGE_WIDTH * 0.08411216735839844);
                     final Point2D METALKNOB_FRAME_START = new Point2D.Double(0, METALKNOB_FRAME.getBounds2D().getMinY());
                     final Point2D METALKNOB_FRAME_STOP = new Point2D.Double(0, METALKNOB_FRAME.getBounds2D().getMaxY());
                     final float[] METALKNOB_FRAME_FRACTIONS = {
@@ -824,7 +825,7 @@ public class RadialCustom extends AbstractRadial {
                     G2.setPaint(METALKNOB_FRAME_GRADIENT);
                     G2.fill(METALKNOB_FRAME);
 
-                    final Ellipse2D METALKNOB_MAIN = new Ellipse2D.Double(IMAGE_WIDTH * 0.46261683106422424, IMAGE_HEIGHT * 0.46261683106422424, IMAGE_WIDTH * 0.0747663676738739, IMAGE_HEIGHT * 0.0747663676738739);
+                    final Ellipse2D METALKNOB_MAIN = new Ellipse2D.Double(IMAGE_WIDTH * 0.46261683106422424, IMAGE_WIDTH * 0.46261683106422424, IMAGE_WIDTH * 0.0747663676738739, IMAGE_WIDTH * 0.0747663676738739);
                     final Point2D METALKNOB_MAIN_START = new Point2D.Double(0, METALKNOB_MAIN.getBounds2D().getMinY());
                     final Point2D METALKNOB_MAIN_STOP = new Point2D.Double(0, METALKNOB_MAIN.getBounds2D().getMaxY());
                     final float[] METALKNOB_MAIN_FRACTIONS = {
@@ -863,13 +864,13 @@ public class RadialCustom extends AbstractRadial {
 
                     final GeneralPath METALKNOB_LOWERHL = new GeneralPath();
                     METALKNOB_LOWERHL.setWindingRule(Path2D.WIND_EVEN_ODD);
-                    METALKNOB_LOWERHL.moveTo(IMAGE_WIDTH * 0.5186915887850467, IMAGE_HEIGHT * 0.5280373831775701);
-                    METALKNOB_LOWERHL.curveTo(IMAGE_WIDTH * 0.5186915887850467, IMAGE_HEIGHT * 0.5186915887850467, IMAGE_WIDTH * 0.5093457943925234, IMAGE_HEIGHT * 0.514018691588785, IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.514018691588785);
-                    METALKNOB_LOWERHL.curveTo(IMAGE_WIDTH * 0.48598130841121495, IMAGE_HEIGHT * 0.514018691588785, IMAGE_WIDTH * 0.4766355140186916, IMAGE_HEIGHT * 0.5186915887850467, IMAGE_WIDTH * 0.4766355140186916, IMAGE_HEIGHT * 0.5280373831775701);
-                    METALKNOB_LOWERHL.curveTo(IMAGE_WIDTH * 0.48130841121495327, IMAGE_HEIGHT * 0.5327102803738317, IMAGE_WIDTH * 0.49065420560747663, IMAGE_HEIGHT * 0.5373831775700935, IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.5373831775700935);
-                    METALKNOB_LOWERHL.curveTo(IMAGE_WIDTH * 0.5046728971962616, IMAGE_HEIGHT * 0.5373831775700935, IMAGE_WIDTH * 0.514018691588785, IMAGE_HEIGHT * 0.5327102803738317, IMAGE_WIDTH * 0.5186915887850467, IMAGE_HEIGHT * 0.5280373831775701);
+                    METALKNOB_LOWERHL.moveTo(IMAGE_WIDTH * 0.5186915887850467, IMAGE_WIDTH * 0.5280373831775701);
+                    METALKNOB_LOWERHL.curveTo(IMAGE_WIDTH * 0.5186915887850467, IMAGE_WIDTH * 0.5186915887850467, IMAGE_WIDTH * 0.5093457943925234, IMAGE_WIDTH * 0.514018691588785, IMAGE_WIDTH * 0.5, IMAGE_WIDTH * 0.514018691588785);
+                    METALKNOB_LOWERHL.curveTo(IMAGE_WIDTH * 0.48598130841121495, IMAGE_WIDTH * 0.514018691588785, IMAGE_WIDTH * 0.4766355140186916, IMAGE_WIDTH * 0.5186915887850467, IMAGE_WIDTH * 0.4766355140186916, IMAGE_WIDTH * 0.5280373831775701);
+                    METALKNOB_LOWERHL.curveTo(IMAGE_WIDTH * 0.48130841121495327, IMAGE_WIDTH * 0.5327102803738317, IMAGE_WIDTH * 0.49065420560747663, IMAGE_WIDTH * 0.5373831775700935, IMAGE_WIDTH * 0.5, IMAGE_WIDTH * 0.5373831775700935);
+                    METALKNOB_LOWERHL.curveTo(IMAGE_WIDTH * 0.5046728971962616, IMAGE_WIDTH * 0.5373831775700935, IMAGE_WIDTH * 0.514018691588785, IMAGE_WIDTH * 0.5327102803738317, IMAGE_WIDTH * 0.5186915887850467, IMAGE_WIDTH * 0.5280373831775701);
                     METALKNOB_LOWERHL.closePath();
-                    final Point2D METALKNOB_LOWERHL_CENTER = new Point2D.Double((0.5 * IMAGE_WIDTH), (0.5373831775700935 * IMAGE_HEIGHT));
+                    final Point2D METALKNOB_LOWERHL_CENTER = new Point2D.Double((0.5 * IMAGE_WIDTH), (0.5373831775700935 * IMAGE_WIDTH));
                     final float[] METALKNOB_LOWERHL_FRACTIONS = {
                         0.0f,
                         1.0f
@@ -884,13 +885,13 @@ public class RadialCustom extends AbstractRadial {
 
                     final GeneralPath METALKNOB_UPPERHL = new GeneralPath();
                     METALKNOB_UPPERHL.setWindingRule(Path2D.WIND_EVEN_ODD);
-                    METALKNOB_UPPERHL.moveTo(IMAGE_WIDTH * 0.5327102803738317, IMAGE_HEIGHT * 0.48130841121495327);
-                    METALKNOB_UPPERHL.curveTo(IMAGE_WIDTH * 0.5280373831775701, IMAGE_HEIGHT * 0.4672897196261682, IMAGE_WIDTH * 0.514018691588785, IMAGE_HEIGHT * 0.45794392523364486, IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.45794392523364486);
-                    METALKNOB_UPPERHL.curveTo(IMAGE_WIDTH * 0.48130841121495327, IMAGE_HEIGHT * 0.45794392523364486, IMAGE_WIDTH * 0.4672897196261682, IMAGE_HEIGHT * 0.4672897196261682, IMAGE_WIDTH * 0.46261682242990654, IMAGE_HEIGHT * 0.48130841121495327);
-                    METALKNOB_UPPERHL.curveTo(IMAGE_WIDTH * 0.4672897196261682, IMAGE_HEIGHT * 0.48598130841121495, IMAGE_WIDTH * 0.48130841121495327, IMAGE_HEIGHT * 0.49065420560747663, IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.49065420560747663);
-                    METALKNOB_UPPERHL.curveTo(IMAGE_WIDTH * 0.514018691588785, IMAGE_HEIGHT * 0.49065420560747663, IMAGE_WIDTH * 0.5280373831775701, IMAGE_HEIGHT * 0.48598130841121495, IMAGE_WIDTH * 0.5327102803738317, IMAGE_HEIGHT * 0.48130841121495327);
+                    METALKNOB_UPPERHL.moveTo(IMAGE_WIDTH * 0.5327102803738317, IMAGE_WIDTH * 0.48130841121495327);
+                    METALKNOB_UPPERHL.curveTo(IMAGE_WIDTH * 0.5280373831775701, IMAGE_WIDTH * 0.4672897196261682, IMAGE_WIDTH * 0.514018691588785, IMAGE_WIDTH * 0.45794392523364486, IMAGE_WIDTH * 0.5, IMAGE_WIDTH * 0.45794392523364486);
+                    METALKNOB_UPPERHL.curveTo(IMAGE_WIDTH * 0.48130841121495327, IMAGE_WIDTH * 0.45794392523364486, IMAGE_WIDTH * 0.4672897196261682, IMAGE_WIDTH * 0.4672897196261682, IMAGE_WIDTH * 0.46261682242990654, IMAGE_WIDTH * 0.48130841121495327);
+                    METALKNOB_UPPERHL.curveTo(IMAGE_WIDTH * 0.4672897196261682, IMAGE_WIDTH * 0.48598130841121495, IMAGE_WIDTH * 0.48130841121495327, IMAGE_WIDTH * 0.49065420560747663, IMAGE_WIDTH * 0.5, IMAGE_WIDTH * 0.49065420560747663);
+                    METALKNOB_UPPERHL.curveTo(IMAGE_WIDTH * 0.514018691588785, IMAGE_WIDTH * 0.49065420560747663, IMAGE_WIDTH * 0.5280373831775701, IMAGE_WIDTH * 0.48598130841121495, IMAGE_WIDTH * 0.5327102803738317, IMAGE_WIDTH * 0.48130841121495327);
                     METALKNOB_UPPERHL.closePath();
-                    final Point2D METALKNOB_UPPERHL_CENTER = new Point2D.Double((0.4953271028037383 * IMAGE_WIDTH), (0.45794392523364486 * IMAGE_HEIGHT));
+                    final Point2D METALKNOB_UPPERHL_CENTER = new Point2D.Double((0.4953271028037383 * IMAGE_WIDTH), (0.45794392523364486 * IMAGE_WIDTH));
                     final float[] METALKNOB_UPPERHL_FRACTIONS = {
                         0.0f,
                         1.0f
@@ -903,7 +904,7 @@ public class RadialCustom extends AbstractRadial {
                     G2.setPaint(METALKNOB_UPPERHL_GRADIENT);
                     G2.fill(METALKNOB_UPPERHL);
 
-                    final Ellipse2D METALKNOB_INNERFRAME = new Ellipse2D.Double(IMAGE_WIDTH * 0.47663551568984985, IMAGE_HEIGHT * 0.4813084006309509, IMAGE_WIDTH * 0.04205608367919922, IMAGE_HEIGHT * 0.04205608367919922);
+                    final Ellipse2D METALKNOB_INNERFRAME = new Ellipse2D.Double(IMAGE_WIDTH * 0.47663551568984985, IMAGE_WIDTH * 0.4813084006309509, IMAGE_WIDTH * 0.04205608367919922, IMAGE_WIDTH * 0.04205608367919922);
                     final Point2D METALKNOB_INNERFRAME_START = new Point2D.Double(0, METALKNOB_INNERFRAME.getBounds2D().getMinY());
                     final Point2D METALKNOB_INNERFRAME_STOP = new Point2D.Double(0, METALKNOB_INNERFRAME.getBounds2D().getMaxY());
                     final float[] METALKNOB_INNERFRAME_FRACTIONS = {
@@ -919,7 +920,7 @@ public class RadialCustom extends AbstractRadial {
                     G2.setPaint(METALKNOB_INNERFRAME_GRADIENT);
                     G2.fill(METALKNOB_INNERFRAME);
 
-                    final Ellipse2D METALKNOB_INNERBACKGROUND = new Ellipse2D.Double(IMAGE_WIDTH * 0.4813084006309509, IMAGE_HEIGHT * 0.4859813153743744, IMAGE_WIDTH * 0.03271031379699707, IMAGE_HEIGHT * 0.03271028399467468);
+                    final Ellipse2D METALKNOB_INNERBACKGROUND = new Ellipse2D.Double(IMAGE_WIDTH * 0.4813084006309509, IMAGE_WIDTH * 0.4859813153743744, IMAGE_WIDTH * 0.03271031379699707, IMAGE_WIDTH * 0.03271028399467468);
                     final Point2D METALKNOB_INNERBACKGROUND_START = new Point2D.Double(0, METALKNOB_INNERBACKGROUND.getBounds2D().getMinY());
                     final Point2D METALKNOB_INNERBACKGROUND_STOP = new Point2D.Double(0, METALKNOB_INNERBACKGROUND.getBounds2D().getMaxY());
                     final float[] METALKNOB_INNERBACKGROUND_FRACTIONS = {
