@@ -393,8 +393,9 @@ public enum TickmarkImageFactory {
                             drawRadialTicks(G2, INNER_POINT, OUTER_POINT, CENTER, RADIUS, MAJOR_TICKMARK_TYPE, TICK_LINE, TICK_CIRCLE, TICK_TRIANGLE, MAJOR_TICK_LENGTH, MAJOR_DIAMETER, OUTER_POINT_LEFT, OUTER_POINT_RIGHT, alpha);
                         }
 
-                        // Draw the standard tickmark labels
-                        if (TICKLABELS_VISIBLE) {
+                        // Draw the standard tickmark labels (make sure that if the min tickLabel touch the max then the max tickLabel is not draw)
+                        if (TICKLABELS_VISIBLE && alpha > -39d / 20d * Math.PI) {
+                            
                             switch(TICKLABEL_ORIENTATION)
                             {
                                 case NORMAL:
