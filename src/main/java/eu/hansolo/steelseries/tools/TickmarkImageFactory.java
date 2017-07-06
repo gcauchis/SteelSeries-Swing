@@ -117,6 +117,7 @@ public enum TickmarkImageFactory {
     private Orientation orientationBufferLin = Orientation.VERTICAL;
     private boolean niceScaleLin = true;
     private boolean logScaleLin = false;
+    private Font stdFont = null;
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Radial tickmark related">
@@ -152,10 +153,77 @@ public enum TickmarkImageFactory {
             final boolean NICE_SCALE,
             final boolean LOG_SCALE,
             final BufferedImage BACKGROUND_IMAGE) {
-        
         return create_RADIAL_TICKMARKS_Image(WIDTH, WIDTH, MIN_VALUE, MAX_VALUE, NO_OF_MINOR_TICKS, NO_OF_MAJOR_TICKS, MINOR_TICK_SPACING, MAJOR_TICK_SPACING, GAUGE_TYPE, CUSTOM_GAUGE_TYPE, MINOR_TICKMARK_TYPE, MAJOR_TICKMARK_TYPE, TICKS_VISIBLE, TICKLABELS_VISIBLE, MINOR_TICKS_VISIBLE, MAJOR_TICKS_VISIBLE, NUMBER_FORMAT, TICKMARK_SECTIONS_VISIBLE, BACKGROUND_COLOR, TICKMARK_COLOR, TICKMARK_COLOR_FROM_THEME, tickmarkSections, SECTION_TICKMARKS_ONLY, sections, RADIUS_FACTOR, TEXT_DISTANCE_FACTOR, CENTER, OFFSET, ORIENTATION, TICKLABEL_ORIENTATION, NICE_SCALE, LOG_SCALE, BACKGROUND_IMAGE);
     }
-    
+
+    public BufferedImage create_RADIAL_TICKMARKS_Image(final int WIDTH,
+            final int HEIGHT,
+            final double MIN_VALUE,
+            final double MAX_VALUE,
+            final int NO_OF_MINOR_TICKS,
+            final int NO_OF_MAJOR_TICKS,
+            final double MINOR_TICK_SPACING,
+            final double MAJOR_TICK_SPACING,
+            final GaugeType GAUGE_TYPE,
+            final CustomGaugeType CUSTOM_GAUGE_TYPE,
+            final TickmarkType MINOR_TICKMARK_TYPE,
+            final TickmarkType MAJOR_TICKMARK_TYPE,
+            final boolean TICKS_VISIBLE,
+            final boolean TICKLABELS_VISIBLE,
+            final boolean MINOR_TICKS_VISIBLE,
+            final boolean MAJOR_TICKS_VISIBLE,
+            final NumberFormat NUMBER_FORMAT,
+            final boolean TICKMARK_SECTIONS_VISIBLE,
+            final BackgroundColor BACKGROUND_COLOR,
+            final Color TICKMARK_COLOR,
+            final boolean TICKMARK_COLOR_FROM_THEME,
+            List<Section> tickmarkSections,
+            final boolean SECTION_TICKMARKS_ONLY,
+            List<Section> sections,
+            final float RADIUS_FACTOR,
+            final float TEXT_DISTANCE_FACTOR,
+            final Point2D CENTER,
+            final Point2D OFFSET,
+            final Orientation ORIENTATION,
+            final TicklabelOrientation TICKLABEL_ORIENTATION,
+            final boolean NICE_SCALE,
+            final boolean LOG_SCALE,
+            final BufferedImage BACKGROUND_IMAGE) {
+        return create_RADIAL_TICKMARKS_Image(WIDTH,
+                HEIGHT,
+                MIN_VALUE,
+                MAX_VALUE,
+                NO_OF_MINOR_TICKS,
+                NO_OF_MAJOR_TICKS,
+                MINOR_TICK_SPACING,
+                MAJOR_TICK_SPACING,
+                GAUGE_TYPE,
+                CUSTOM_GAUGE_TYPE,
+                MINOR_TICKMARK_TYPE,
+                MAJOR_TICKMARK_TYPE,
+                TICKS_VISIBLE,
+                TICKLABELS_VISIBLE,
+                MINOR_TICKS_VISIBLE,
+                MAJOR_TICKS_VISIBLE,
+                NUMBER_FORMAT,
+                TICKMARK_SECTIONS_VISIBLE,
+                BACKGROUND_COLOR,
+                TICKMARK_COLOR,
+                TICKMARK_COLOR_FROM_THEME,
+                tickmarkSections,
+                SECTION_TICKMARKS_ONLY,
+                sections, RADIUS_FACTOR,
+                TEXT_DISTANCE_FACTOR,
+                CENTER,
+                OFFSET,
+                ORIENTATION,
+                TICKLABEL_ORIENTATION,
+                NICE_SCALE,
+                LOG_SCALE,
+                null,
+                BACKGROUND_IMAGE);
+    }
+
     public BufferedImage create_RADIAL_TICKMARKS_Image(final int WIDTH,
                                                           final int HEIGHT,
                                                           final double MIN_VALUE,
@@ -188,9 +256,13 @@ public enum TickmarkImageFactory {
                                                           final TicklabelOrientation TICKLABEL_ORIENTATION,
                                                           final boolean NICE_SCALE,
                                                           final boolean LOG_SCALE,
+                                                          Font STD_FONT,
                                                           final BufferedImage BACKGROUND_IMAGE) {
         if (WIDTH <= 0) {
             return UTIL.createImage(1, 1, Transparency.TRANSLUCENT);
+        }
+        if (STD_FONT == null) {
+            STD_FONT = new Font("Verdana", 0, (int) (0.04 * WIDTH));
         }
 
         // Buffer check
@@ -225,7 +297,8 @@ public enum TickmarkImageFactory {
             && orientationBufferRad == ORIENTATION
             && ticklabelOrientationBufferRad == TICKLABEL_ORIENTATION
             && niceScaleRad == NICE_SCALE
-            && logScaleRad == LOG_SCALE) {
+            && logScaleRad == LOG_SCALE
+            && STD_FONT.equals(stdFont)) {
             if (BACKGROUND_IMAGE != null) {
                 final Graphics2D G = BACKGROUND_IMAGE.createGraphics();
                 G.drawImage(imageBufferRad, 0, 0, null);
@@ -254,7 +327,6 @@ public enum TickmarkImageFactory {
         }
 
         // Definitions
-        final Font STD_FONT = new Font("Verdana", 0, (int) (0.04 * WIDTH));
         final Font SECTION_FONT = new Font("Verdana", 0, (int) (0.05 * WIDTH));
         final int TEXT_DISTANCE = (int) (TEXT_DISTANCE_FACTOR * WIDTH);
         double ticklabelRotationOffset = 0;
@@ -565,6 +637,7 @@ public enum TickmarkImageFactory {
         ticklabelOrientationBufferRad = TICKLABEL_ORIENTATION;
         niceScaleRad = NICE_SCALE;
         logScaleRad = LOG_SCALE;
+        stdFont = STD_FONT;
 
         return imageBufferRad;
     }

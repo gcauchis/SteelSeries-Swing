@@ -27,26 +27,6 @@
  */
 package eu.hansolo.steelseries.gauges;
 
-import eu.hansolo.steelseries.tools.BackgroundColor;
-import eu.hansolo.steelseries.tools.ConicalGradientPaint;
-import eu.hansolo.steelseries.tools.CustomGaugeType;
-import eu.hansolo.steelseries.tools.FrameDesign;
-import eu.hansolo.steelseries.tools.GaugeType;
-import eu.hansolo.steelseries.tools.GaugeTypeInfo;
-import eu.hansolo.steelseries.tools.GaugeTypeUtil;
-import eu.hansolo.steelseries.tools.GradientWrapper;
-import eu.hansolo.steelseries.tools.KnobType;
-import eu.hansolo.steelseries.tools.LcdColor;
-import eu.hansolo.steelseries.tools.MeasuredValueImageFactory;
-import eu.hansolo.steelseries.tools.Model;
-import eu.hansolo.steelseries.tools.NumberSystem;
-import eu.hansolo.steelseries.tools.Orientation;
-import eu.hansolo.steelseries.tools.PostPosition;
-import eu.hansolo.steelseries.tools.Scaler;
-import eu.hansolo.steelseries.tools.Section;
-import eu.hansolo.steelseries.tools.Shadow;
-import eu.hansolo.steelseries.tools.Util;
-
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -78,6 +58,26 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import eu.hansolo.steelseries.tools.BackgroundColor;
+import eu.hansolo.steelseries.tools.ConicalGradientPaint;
+import eu.hansolo.steelseries.tools.CustomGaugeType;
+import eu.hansolo.steelseries.tools.FrameDesign;
+import eu.hansolo.steelseries.tools.GaugeType;
+import eu.hansolo.steelseries.tools.GaugeTypeInfo;
+import eu.hansolo.steelseries.tools.GaugeTypeUtil;
+import eu.hansolo.steelseries.tools.GradientWrapper;
+import eu.hansolo.steelseries.tools.KnobType;
+import eu.hansolo.steelseries.tools.LcdColor;
+import eu.hansolo.steelseries.tools.MeasuredValueImageFactory;
+import eu.hansolo.steelseries.tools.Model;
+import eu.hansolo.steelseries.tools.NumberFormat;
+import eu.hansolo.steelseries.tools.NumberSystem;
+import eu.hansolo.steelseries.tools.Orientation;
+import eu.hansolo.steelseries.tools.PostPosition;
+import eu.hansolo.steelseries.tools.Scaler;
+import eu.hansolo.steelseries.tools.Section;
+import eu.hansolo.steelseries.tools.Shadow;
+import eu.hansolo.steelseries.tools.Util;
 
 /**
  * A {@link Radial} who is adjusted in size to fit the custom gauge type.
@@ -86,6 +86,8 @@ import java.util.Random;
  */
 public class RadialCustom extends AbstractRadial {
     // <editor-fold defaultstate="collapsed" desc="Variable declarations">
+    private static final Color DARK_NOISE = new Color(0.2f, 0.2f, 0.2f);
+    private static final Color BRIGHT_NOISE = new Color(0.8f, 0.8f, 0.8f);
     protected static final int BASE = 10;
     /** The background image. */
     private BufferedImage bImage;
@@ -137,8 +139,8 @@ public class RadialCustom extends AbstractRadial {
     
     private boolean tickLabelIn = true;
     
-    private static final Color DARK_NOISE = new Color(0.2f, 0.2f, 0.2f);
-    private static final Color BRIGHT_NOISE = new Color(0.8f, 0.8f, 0.8f);
+    /** The font of the tick label. */
+    private Font tickLabelFont;
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Constructor">
@@ -322,6 +324,7 @@ public class RadialCustom extends AbstractRadial {
                                                        getModel().getTicklabelOrientation(),
                                                        getModel().isNiceScale(),
                                                        getModel().isLogScale(),
+                                                       getTickLabelFont(),
                                                        biImage);
 
         create_TITLE_Image(GAUGE_WIDTH, getTitle(), getUnitString(), biImage);
@@ -417,12 +420,25 @@ public class RadialCustom extends AbstractRadial {
             innerFrameGlossy2 = outerFrameScale;
         }
 
-        if (tickLabelIn) {
-            tickMarkScale = backgroundScale * 0.93f;
-            tickMarkLabelDistanceFactor = 0.09f;
+        if (tickLabelFont == null) {
+            if (tickLabelIn) {
+                tickMarkScale = backgroundScale * 0.93f;
+                tickMarkLabelDistanceFactor = 0.09f;
+            } else {
+                tickMarkScale = backgroundScale * 0.84f;
+                tickMarkLabelDistanceFactor = -0.04f;
+            }
         } else {
-            tickMarkScale = backgroundScale * 0.84f;
-            tickMarkLabelDistanceFactor = -0.04f;
+            int fontSize = tickLabelFont.getSize();
+            int width = getGaugeBounds().width;
+            float ratio = fontSize / (float) width;
+            if (tickLabelIn) {
+                tickMarkScale = backgroundScale * 0.93f;
+                tickMarkLabelDistanceFactor = 0.04f + ratio;
+            } else {
+                tickMarkScale = backgroundScale * Math.max(0.5f, 1f - ratio * (NumberFormat.STANDARD.format(getMaxValue()).length() + 1.8f));
+                tickMarkLabelDistanceFactor = -ratio / 2f - 0.01f;
+            }
         }
     }
 
@@ -2286,7 +2302,6 @@ public class RadialCustom extends AbstractRadial {
      */
     public void setFrameThikness(float frameThikness) {
         this.frameThikness = frameThikness;
-        computeScales();
         reInitialize();
     }
 
@@ -2294,4 +2309,25 @@ public class RadialCustom extends AbstractRadial {
     public String toString() {
         return "Radial " + getGaugeType();
     }
+
+    /**
+     * Gets the tick label font.
+     *
+     * @return the tick label font
+     */
+    public Font getTickLabelFont() {
+        return tickLabelFont;
+    }
+
+    /**
+     * Sets the tick label font.
+     * If null Font is plain Verdana with size 4% of the WIDTH
+     *
+     * @param tickLabelFont the new tick label font
+     */
+    public void setTickLabelFont(Font tickLabelFont) {
+        this.tickLabelFont = tickLabelFont;
+        reInitialize();
+    }
+    
 }
